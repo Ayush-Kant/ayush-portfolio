@@ -427,45 +427,6 @@
     border-color 180ms ease,
     box-shadow 180ms ease;
 
-  animation:
-    connect-pulse
-    3.2s
-    ease-in-out
-    infinite;
-}
-
-.connectButton::before {
-  content: "";
-
-  position: absolute;
-  inset: -2px;
-
-  z-index: -2;
-
-  border-radius: inherit;
-
-  background:
-    conic-gradient(
-      from 0deg,
-      transparent 0deg,
-      rgba(182, 150, 255, 0.05) 55deg,
-      rgba(207, 184, 255, 0.92) 110deg,
-      rgba(142, 102, 255, 0.18) 170deg,
-      transparent 235deg,
-      rgba(255, 255, 255, 0.5) 285deg,
-      transparent 340deg
-    );
-
-  filter:
-    blur(7px);
-
-  opacity: 0.72;
-
-  animation:
-    connect-orbit
-    4.5s
-    linear
-    infinite;
 }
 
 .connectButton::after {
@@ -509,18 +470,6 @@
   z-index: 1;
 }
 
-@keyframes connect-orbit {
-  from {
-    transform:
-      rotate(0deg);
-  }
-
-  to {
-    transform:
-      rotate(360deg);
-  }
-}
-
 @keyframes connect-shine {
   0%,
   52% {
@@ -540,25 +489,6 @@
   100% {
     left: 130%;
     opacity: 0;
-  }
-}
-
-@keyframes connect-pulse {
-  0%,
-  100% {
-    box-shadow:
-      0 0 0
-        rgba(169, 140, 255, 0),
-      0 10px 28px
-        rgba(94, 67, 164, 0.08);
-  }
-
-  50% {
-    box-shadow:
-      0 0 24px
-        rgba(169, 140, 255, 0.2),
-      0 12px 34px
-        rgba(94, 67, 164, 0.2);
   }
 }
 
@@ -789,7 +719,6 @@
     animation: none;
   }
 
-  .connectButton::before,
   .connectButton::after {
     animation: none;
   }
