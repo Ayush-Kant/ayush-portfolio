@@ -19,7 +19,10 @@ export default function HeroText() {
         </span>
       </p>
 
-      <h1 className="hero-title">
+      <h1
+        id="hero-title"
+        className="hero-title"
+      >
         <span className="hero-title-line">
           <span className="hero-title-muted">
             Hi, I&apos;m
@@ -63,7 +66,9 @@ export default function HeroText() {
           className="hero-button hero-button-primary"
         >
           View My Work
-          <span aria-hidden="true">→</span>
+          <span aria-hidden="true">
+            →
+          </span>
         </Link>
 
         <Link
@@ -71,11 +76,16 @@ export default function HeroText() {
           className="hero-button hero-button-secondary"
         >
           About Me
-          <span aria-hidden="true">↗</span>
+          <span aria-hidden="true">
+            ↗
+          </span>
         </Link>
       </div>
 
-      <div className="hero-proof">
+      <div
+        className="hero-proof"
+        aria-label="Highlights"
+      >
         <span>SIH Finalist</span>
         <span>2× Hackathon Winner</span>
         <span>Lead</span>
