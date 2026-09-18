@@ -20,6 +20,19 @@ export default function Typewriter({
     useState(0);
 
   useEffect(() => {
+    const reducedMotion =
+      window.matchMedia(
+        "(prefers-reduced-motion: reduce)"
+      ).matches;
+
+    if (reducedMotion) {
+      setVisibleCharacters(
+        text.length
+      );
+
+      return;
+    }
+
     let timeoutId:
       | ReturnType<typeof setTimeout>
       | undefined;
@@ -55,11 +68,15 @@ export default function Typewriter({
 
     return () => {
       if (timeoutId) {
-        clearTimeout(timeoutId);
+        clearTimeout(
+          timeoutId
+        );
       }
 
       if (intervalId) {
-        clearInterval(intervalId);
+        clearInterval(
+          intervalId
+        );
       }
     };
   }, [startDelayMs, text]);
@@ -75,10 +92,13 @@ export default function Typewriter({
           visibleCharacters
         )}
 
-        <span
-          className="hero-caret"
-          aria-hidden="true"
-        />
+        {visibleCharacters <
+          text.length && (
+          <span
+            className="hero-caret"
+            aria-hidden="true"
+          />
+        )}
       </span>
 
       <span className="sr-only">
