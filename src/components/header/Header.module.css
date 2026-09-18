@@ -39,7 +39,7 @@
   position: fixed;
   inset: 0 0 auto;
 
-  height: 78px;
+  height: 72px;
 
   z-index: -1;
 
@@ -48,21 +48,21 @@
   background:
     linear-gradient(
       180deg,
-      rgba(5, 5, 7, 0.9) 0%,
-      rgba(5, 5, 7, 0.72) 30%,
-      rgba(5, 5, 7, 0.28) 66%,
+      rgba(5, 5, 7, 0.92) 0%,
+      rgba(5, 5, 7, 0.62) 38%,
+      rgba(5, 5, 7, 0.18) 70%,
       transparent 100%
     );
 
   backdrop-filter:
-    blur(18px);
+    blur(16px);
 
   -webkit-mask-image:
     linear-gradient(
       180deg,
       #000 0%,
-      #000 30%,
-      rgba(0, 0, 0, 0.72) 62%,
+      #000 34%,
+      rgba(0, 0, 0, 0.62) 65%,
       transparent 100%
     );
 
@@ -70,8 +70,8 @@
     linear-gradient(
       180deg,
       #000 0%,
-      #000 30%,
-      rgba(0, 0, 0, 0.72) 62%,
+      #000 34%,
+      rgba(0, 0, 0, 0.62) 65%,
       transparent 100%
     );
 }
