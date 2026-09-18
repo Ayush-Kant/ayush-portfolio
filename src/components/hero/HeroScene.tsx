@@ -1,16 +1,14 @@
+import styles from "./HeroScene.module.css";
 import HeroAnimation from "./HeroAnimation";
 
 export default function HeroScene() {
   return (
     <div
-      className="hero-scene"
+      className={styles.scene}
       aria-hidden="true"
     >
       <HeroAnimation />
-
-      <div
-        className="hero-scene-glow"
-      />
+      <div className={styles.glow} />
     </div>
   );
 }
