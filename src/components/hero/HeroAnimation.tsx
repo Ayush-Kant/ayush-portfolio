@@ -7,10 +7,9 @@ import {
   useState,
 } from "react";
 
-type PlaybackPhase =
-  | "fallback"
-  | "intro"
-  | "idle";
+import styles from "./HeroScene.module.css";
+
+type PlaybackPhase = "fallback" | "intro" | "idle";
 
 const INTRO_SOURCES = [
   {
@@ -21,7 +20,7 @@ const INTRO_SOURCES = [
     src: "/hero/hero-intro.mp4",
     type: "video/mp4",
   },
-];
+] as const;
 
 const IDLE_SOURCES = [
   {
@@ -32,29 +31,32 @@ const IDLE_SOURCES = [
     src: "/hero/hero-idle.mp4",
     type: "video/mp4",
   },
-];
+] as const;
 
 export default function HeroAnimation() {
   const introRef =
-    useRef<HTMLVideoElement | null>(
-      null
-    );
+    useRef<HTMLVideoElement | null>(null);
 
   const idleRef =
-    useRef<HTMLVideoElement | null>(
-      null
-    );
+    useRef<HTMLVideoElement | null>(null);
 
   const [phase, setPhase] =
-    useState<PlaybackPhase>(
-      "intro"
-    );
+    useState<PlaybackPhase>("intro");
+
+  const [introReady, setIntroReady] =
+    useState(false);
+
+  const [introFinished, setIntroFinished] =
+    useState(false);
+
+  const [introFailed, setIntroFailed] =
+    useState(false);
 
   const [idleReady, setIdleReady] =
     useState(false);
 
-  const [motionAllowed, setMotionAllowed] =
-    useState(true);
+  const [reducedMotion, setReducedMotion] =
+    useState(false);
 
   useEffect(() => {
     const mediaQuery =
@@ -62,144 +64,149 @@ export default function HeroAnimation() {
         "(prefers-reduced-motion: reduce)"
       );
 
-    const updatePreference = () => {
-      setMotionAllowed(
-        !mediaQuery.matches
+    const syncPreference = () => {
+      setReducedMotion(
+        mediaQuery.matches
       );
     };
 
-    updatePreference();
+    syncPreference();
 
     mediaQuery.addEventListener(
       "change",
-      updatePreference
+      syncPreference
     );
 
     return () => {
       mediaQuery.removeEventListener(
         "change",
-        updatePreference
+        syncPreference
       );
     };
   }, []);
 
   useEffect(() => {
-    if (!motionAllowed) {
+    if (reducedMotion) {
       setPhase("fallback");
-
       introRef.current?.pause();
       idleRef.current?.pause();
-
       return;
     }
 
-    if (phase === "intro") {
-      const intro =
-        introRef.current;
-
-      if (!intro) return;
-
-      /*
-       * Muted autoplay is intentionally requested through JS too.
-       * This gives us an explicit failure path instead of silently
-       * assuming autoplay succeeded.
-       */
-      intro.muted = true;
-
-      const playPromise =
-        intro.play();
-
-      playPromise?.catch(() => {
-        setPhase(
-          idleReady
-            ? "idle"
-            : "fallback"
-        );
-      });
-
-      return;
-    }
-
-    if (phase === "idle") {
-      const idle =
-        idleRef.current;
-
-      if (!idle) return;
-
-      idle.muted = true;
-
-      const playPromise =
-        idle.play();
-
-      playPromise?.catch(() => {
-        setPhase("fallback");
-      });
-    }
-  }, [
-    idleReady,
-    motionAllowed,
-    phase,
-  ]);
-
-  const handleIntroEnded =
-    () => {
-      if (idleReady) {
-        setPhase("idle");
-        return;
-      }
-
-      /*
-       * The idle loop may still be decoding.
-       * The intro remains visible until the idle
-       * media is genuinely ready.
-       */
-    };
-
-  const handleIdleReady =
-    () => {
-      setIdleReady(true);
-    };
-
-  useEffect(() => {
-    if (!idleReady) return;
-
-    const intro =
-      introRef.current;
-
-    const idle =
-      idleRef.current;
+    const intro = introRef.current;
+    const idle = idleRef.current;
 
     if (!intro || !idle) {
       return;
     }
 
+    intro.muted = true;
+    idle.muted = true;
+
+    /*
+     * The idle clip is intentionally requested early so the
+     * transition after the greeting can happen without a second
+     * network wait.
+     */
+    idle.load();
+
+    intro
+      .play()
+      .catch(() => {
+        setIntroFailed(true);
+      });
+  }, [reducedMotion]);
+
+  useEffect(() => {
     if (
-      !intro.ended &&
-      phase !== "idle"
+      reducedMotion ||
+      !introFinished ||
+      !idleReady
     ) {
       return;
     }
 
     setPhase("idle");
 
-    idle.currentTime = 0;
-    idle.muted = true;
+    const idle =
+      idleRef.current;
 
-    const playPromise =
-      idle.play();
-
-    playPromise?.catch(() => {
+    idle?.play().catch(() => {
       setPhase("fallback");
     });
-  }, [idleReady, phase]);
+  }, [
+    idleReady,
+    introFinished,
+    reducedMotion,
+  ]);
+
+  useEffect(() => {
+    if (
+      reducedMotion ||
+      !introFailed
+    ) {
+      return;
+    }
+
+    if (idleReady) {
+      setPhase("idle");
+
+      idleRef.current
+        ?.play()
+        .catch(() => {
+          setPhase("fallback");
+        });
+    } else {
+      setPhase("fallback");
+    }
+  }, [
+    idleReady,
+    introFailed,
+    reducedMotion,
+  ]);
+
+  const handleIntroReady = () => {
+    setIntroReady(true);
+
+    introRef.current
+      ?.play()
+      .catch(() => {
+        setIntroFailed(true);
+      });
+  };
+
+  const handleIntroEnded = () => {
+    setIntroFinished(true);
+  };
+
+  const handleIdleReady = () => {
+    setIdleReady(true);
+  };
+
+  const handleIntroError = () => {
+    setIntroFailed(true);
+  };
+
+  const handleIdleError = () => {
+    if (phase === "idle") {
+      setPhase("fallback");
+    }
+  };
 
   return (
     <div
-      className="hero-media"
+      className={styles.media}
       data-phase={phase}
+      data-intro-ready={
+        introReady ? "true" : "false"
+      }
+      data-idle-ready={
+        idleReady ? "true" : "false"
+      }
+      aria-hidden="true"
     >
       <Image
-        className="hero-media-poster"
+        className={styles.poster}
         src="/hero/hero-typing-scene.webp"
         alt=""
         fill
@@ -207,26 +214,28 @@ export default function HeroAnimation() {
         sizes="(max-width: 900px) 100vw, 58vw"
       />
 
-      {motionAllowed && (
+      {!reducedMotion && (
         <>
           <video
             ref={introRef}
-            className="hero-media-video hero-media-intro"
+            className={[
+              styles.video,
+              styles.intro,
+            ].join(" ")}
             autoPlay
             muted
             playsInline
             preload="auto"
             poster="/hero/hero-typing-scene.webp"
-            onEnded={handleIntroEnded}
-            onError={() => {
-              if (idleReady) {
-                setPhase("idle");
-              } else {
-                setPhase(
-                  "fallback"
-                );
-              }
-            }}
+            onLoadedData={
+              handleIntroReady
+            }
+            onEnded={
+              handleIntroEnded
+            }
+            onError={
+              handleIntroError
+            }
           >
             {INTRO_SOURCES.map(
               (source) => (
@@ -241,18 +250,21 @@ export default function HeroAnimation() {
 
           <video
             ref={idleRef}
-            className="hero-media-video hero-media-idle"
+            className={[
+              styles.video,
+              styles.idle,
+            ].join(" ")}
             muted
             playsInline
             preload="metadata"
             loop
             poster="/hero/hero-typing-scene.webp"
-            onCanPlay={handleIdleReady}
-            onError={() => {
-              if (phase === "idle") {
-                setPhase("fallback");
-              }
-            }}
+            onCanPlay={
+              handleIdleReady
+            }
+            onError={
+              handleIdleError
+            }
           >
             {IDLE_SOURCES.map(
               (source) => (
