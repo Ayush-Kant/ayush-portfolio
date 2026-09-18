@@ -794,21 +794,17 @@ a {
 .hero-scene-column {
   position: absolute;
 
-  top: 0;
+  top:
+    -20px;
+
   right:
     calc(
       -1 *
-      max(
-        0px,
-        calc(
-          (
-            100vw -
-            1480px
-          ) /
-          2
-        )
-      )
+      var(--hero-gutter)
     );
+
+  bottom:
+    -28px;
 
   z-index: 5;
 
@@ -817,9 +813,6 @@ a {
       67vw,
       1080px
     );
-
-  height:
-    auto;
 
   display: flex;
 
