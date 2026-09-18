@@ -1,53 +1,54 @@
+import styles from "./SkillsSection.module.css";
 import { SKILL_GROUPS } from "./skills.data";
 
 export default function SkillsSection() {
   return (
     <section
       id="skills"
-      className="skills-section"
+      className={styles.section}
       aria-labelledby="skills-title"
     >
-      <div className="skills-shell">
-        <div className="skills-heading">
-          <p className="skills-kicker">
+      <div className={styles.shell}>
+        <div className={styles.heading}>
+          <p className={styles.kicker}>
             <span aria-hidden="true">✦</span>
             The toolkit
           </p>
 
           <h2
             id="skills-title"
-            className="skills-title"
+            className={styles.title}
           >
             Things I use
             <br />
             to build.
           </h2>
 
-          <p className="skills-intro">
-            A practical stack I use to turn ideas
+          <p className={styles.intro}>
+            A practical stack for turning ideas
             into interfaces, products, and
             working systems.
           </p>
         </div>
 
-        <div className="skills-groups">
+        <div className={styles.groups}>
           {SKILL_GROUPS.map((group) => (
             <div
-              className="skills-group"
+              className={styles.group}
               key={group.label}
             >
-              <p className="skills-group-label">
+              <p className={styles.label}>
                 {group.label}
               </p>
 
-              <div className="skills-list">
+              <div className={styles.list}>
                 {group.skills.map((skill) => (
                   <span
-                    className="skill-chip"
+                    className={styles.chip}
                     key={skill}
                   >
                     <span
-                      className="skill-chip-dot"
+                      className={styles.dot}
                       aria-hidden="true"
                     />
                     {skill}
