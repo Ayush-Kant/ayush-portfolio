@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Typewriter from "./Typewriter";
 
 export default function HeroText() {
   return (
@@ -22,9 +21,7 @@ export default function HeroText() {
         className="hero-title"
       >
         <span className="hero-title-line">
-          <span className="hero-title-muted">
-            Hi, I&apos;m
-          </span>
+          Hi, I&apos;m
         </span>
 
         <span className="hero-title-line hero-title-accent">
@@ -32,30 +29,32 @@ export default function HeroText() {
         </span>
       </h1>
 
+      <p className="hero-role">
+        Full Stack Developer
+        <span aria-hidden="true">
+          {" "}·{" "}
+        </span>
+        Builder
+        <span aria-hidden="true">
+          {" "}·{" "}
+        </span>
+        Problem Solver
+      </p>
+
       <p className="hero-description">
-        <Typewriter
-          text="I build digital products that create real impact."
-        />
+        I build scalable web experiences,
+        intelligent products, and tools that
+        turn ideas into something people can
+        actually use.
       </p>
 
       <div
-        className="hero-badges"
-        aria-label="Core focus"
+        className="hero-proof"
+        aria-label="Highlights"
       >
-        <span className="hero-badge">
-          <span aria-hidden="true">⌘</span>
-          Full Stack
-        </span>
-
-        <span className="hero-badge">
-          <span aria-hidden="true">✦</span>
-          Problem Solver
-        </span>
-
-        <span className="hero-badge">
-          <span aria-hidden="true">◈</span>
-          Open Source
-        </span>
+        <span>SIH Finalist</span>
+        <span>2× Hackathon Winner</span>
+        <span>Lead</span>
       </div>
 
       <div className="hero-actions">
@@ -78,15 +77,6 @@ export default function HeroText() {
             ↗
           </span>
         </Link>
-      </div>
-
-      <div
-        className="hero-proof"
-        aria-label="Highlights"
-      >
-        <span>SIH Finalist</span>
-        <span>2× Hackathon Winner</span>
-        <span>Lead</span>
       </div>
 
       <p className="hero-signature">
