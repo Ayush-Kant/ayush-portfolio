@@ -156,20 +156,7 @@ a {
 
   margin-inline: auto;
 
-  display: grid;
-
-  grid-template-columns:
-    minmax(420px, 0.88fr)
-    minmax(560px, 1.12fr);
-
-  align-items: center;
-
-  gap:
-    clamp(
-      14px,
-      2vw,
-      28px
-    );
+  display: block;
 }
 
 .hero-text-column {
@@ -761,11 +748,31 @@ a {
 }
 
 .hero-scene-column {
-  position: relative;
+  position: absolute;
+
+  top: 0;
+  right:
+    calc(
+      -1 *
+      max(
+        0px,
+        calc(
+          (
+            100vw -
+            1480px
+          ) /
+          2
+        )
+      )
+    );
 
   z-index: 5;
 
-  min-width: 0;
+  width:
+    min(
+      62vw,
+      980px
+    );
 
   height: 100%;
 
@@ -892,15 +899,19 @@ a {
 }
 
 @media (max-width: 1200px) {
-  .hero-shell {
-    grid-template-columns:
-      minmax(380px, 0.86fr)
-      minmax(500px, 1.14fr);
-
-    min-height:
+  .hero-copy {
+    width:
       min(
-        71svh,
-        660px
+        52%,
+        560px
+      );
+  }
+
+  .hero-scene-column {
+    width:
+      min(
+        64vw,
+        900px
       );
   }
 
@@ -908,7 +919,7 @@ a {
     font-size:
       clamp(
         3.45rem,
-        6.5vw,
+        6.2vw,
         5.75rem
       );
   }
@@ -927,18 +938,15 @@ a {
   }
 
   .hero-shell {
-    grid-template-columns:
-      1fr;
-
     min-height:
       auto;
-
-    gap:
-      18px;
   }
 
   .hero-text-column {
-    height:
+    width:
+      100%;
+
+    min-height:
       auto;
 
     display:
@@ -966,6 +974,18 @@ a {
   }
 
   .hero-scene-column {
+    position:
+      relative;
+
+    top:
+      auto;
+
+    right:
+      auto;
+
+    width:
+      100%;
+
     height:
       auto;
 
