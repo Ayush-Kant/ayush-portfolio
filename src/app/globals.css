@@ -98,16 +98,17 @@ body {
   --bee-x: 50vw;
   --bee-y: 50vh;
   --bee-rotation: 0deg;
-  --wing-angle: -14deg;
-  --wing-angle-secondary: 14deg;
-  --wing-scale: 0.85;
+  --wing-left-angle: -10deg;
+  --wing-right-angle: 10deg;
+  --wing-scale: 0.9;
+  --landing-progress: 0;
 
   position: fixed;
   left: 0;
   top: 0;
 
-  width: 44px;
-  height: 34px;
+  width: 48px;
+  height: 36px;
 
   z-index: 9999;
   pointer-events: none;
@@ -120,109 +121,119 @@ body {
     )
     rotate(var(--bee-rotation));
 
-  transform-origin: center center;
-  will-change: transform;
+  transform-origin: 52% 52%;
+
+  will-change: transform, opacity;
+
+  opacity: 0;
 
   filter:
     drop-shadow(
       0 2px 5px rgba(0, 0, 0, 0.38)
     );
+
+  transition:
+    opacity 180ms ease;
+}
+
+.bee-cursor.bee-visible {
+  opacity: 1;
 }
 
 .bee-svg {
-  width: 44px;
-  height: 34px;
   display: block;
+  width: 48px;
+  height: 36px;
   overflow: visible;
 }
+
+/* =========================================================
+   WINGS
+   ========================================================= */
 
 .bee-wing {
   transform-box: fill-box;
   will-change: transform;
 }
 
-.bee-wing-front {
-  transform-origin: 24% 80%;
+.bee-wing-left {
+  transform-origin: 78% 76%;
   transform:
-    rotate(var(--wing-angle-secondary))
+    rotate(var(--wing-left-angle))
     scaleY(var(--wing-scale));
 }
 
-.bee-wing-rear {
-  transform-origin: 78% 82%;
+.bee-wing-right {
+  transform-origin: 25% 78%;
   transform:
-    rotate(var(--wing-angle))
+    rotate(var(--wing-right-angle))
     scaleY(var(--wing-scale));
 }
+
+/*
+ * The JS animation loop controls the wing angle while
+ * the pointer is moving. When the bee lands, these very
+ * small CSS flutters take over.
+ */
+
+.bee-landed .bee-wing-left,
+.bee-landed .bee-wing-right {
+  animation:
+    bee-resting-wing
+    1.55s
+    ease-in-out
+    infinite;
+}
+
+@keyframes bee-resting-wing {
+  0% {
+    transform:
+      rotate(-3deg)
+      scaleY(0.9);
+  }
+
+  50% {
+    transform:
+      rotate(3deg)
+      scaleY(0.94);
+  }
+
+  100% {
+    transform:
+      rotate(-3deg)
+      scaleY(0.9);
+  }
+}
+
+/* =========================================================
+   BODY
+   ========================================================= */
 
 .bee-body {
   transform-box: fill-box;
-  transform-origin: 50% 55%;
+  transform-origin: center center;
 }
 
-.bee-flying .bee-body {
-  animation:
-    bee-flight-body
-    0.55s
-    ease-in-out
-    infinite
-    alternate;
+/*
+ * No continuous CSS animation is applied to the body.
+ * This intentionally prevents the old "whirling while
+ * sitting" feeling.
+ */
+
+/* =========================================================
+   LANDING
+   ========================================================= */
+
+.bee-landed {
+  filter:
+    drop-shadow(
+      0 2px 5px rgba(247, 201, 72, 0.14)
+    );
 }
 
-@keyframes bee-flight-body {
-  from {
-    transform: translateY(-0.6px) rotate(-1deg);
-  }
-
-  to {
-    transform: translateY(0.6px) rotate(1deg);
-  }
-}
-
-.bee-landed .bee-wing-front,
-.bee-landed .bee-wing-rear {
-  animation:
-    bee-wings-rest
-    1.4s
-    ease-in-out
-    infinite;
-}
-
-.bee-landed .bee-body {
-  animation:
-    bee-landed-breathe
-    2.6s
-    ease-in-out
-    infinite;
-}
-
-@keyframes bee-wings-rest {
-  0% {
-    transform: rotate(-8deg) scaleY(0.85);
-  }
-
-  50% {
-    transform: rotate(8deg) scaleY(0.97);
-  }
-
-  100% {
-    transform: rotate(-8deg) scaleY(0.85);
-  }
-}
-
-@keyframes bee-landed-breathe {
-  0% {
-    transform: translateY(0) rotate(-0.7deg);
-  }
-
-  50% {
-    transform: translateY(0.7px) rotate(0.7deg);
-  }
-
-  100% {
-    transform: translateY(0) rotate(-0.7deg);
-  }
-}
+/* =========================================================
+   TOUCH / ACCESSIBILITY
+   ========================================================= */
 
 @media (pointer: coarse) {
   .bee-cursor {
