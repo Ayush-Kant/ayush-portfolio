@@ -96,9 +96,8 @@ export default function TypewriterTitle() {
       )
     );
 
-  const isTyping =
-    visibleCount <
-    totalLength;
+  const isComplete =
+    visibleCount >= totalLength;
 
   return (
     <h1
