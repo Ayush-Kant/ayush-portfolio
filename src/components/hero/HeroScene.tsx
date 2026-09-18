@@ -14,13 +14,12 @@ export default function HeroScene() {
         alt=""
         fill
         priority
-        sizes="100vw"
+        sizes="(max-width: 900px) 100vw, 56vw"
       />
 
-      <div className={styles.leftBlend} />
-      <div className={styles.topBlend} />
+      <div className={styles.edgeBlend} />
       <div className={styles.bottomBlend} />
-      <div className={styles.colorAtmosphere} />
+      <div className={styles.atmosphere} />
     </div>
   );
 }

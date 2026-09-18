@@ -1,4 +1,5 @@
 import Link from "next/link";
+import TypewriterTitle from "./TypewriterTitle";
 
 export default function HeroText() {
   return (
@@ -7,7 +8,7 @@ export default function HeroText() {
         <span className="hero-terminal-prompt">
           &gt;
         </span>
-        HELLO WORLD!
+        HELLO WORLD! 👋
         <span
           className="hero-kicker-star"
           aria-hidden="true"
@@ -16,18 +17,7 @@ export default function HeroText() {
         </span>
       </p>
 
-      <h1
-        id="hero-title"
-        className="hero-title"
-      >
-        <span className="hero-title-line">
-          Hi, I&apos;m
-        </span>
-
-        <span className="hero-title-line hero-title-accent">
-          Ayush Kant
-        </span>
-      </h1>
+      <TypewriterTitle />
 
       <p className="hero-role">
         Full Stack Developer
