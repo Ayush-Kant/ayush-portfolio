@@ -39,7 +39,7 @@
   position: fixed;
   inset: 0 0 auto;
 
-  height: 96px;
+  height: 72px;
 
   z-index: -1;
 
@@ -48,13 +48,32 @@
   background:
     linear-gradient(
       180deg,
-      rgba(5, 5, 7, 0.88) 0%,
-      rgba(5, 5, 7, 0.58) 46%,
+      rgba(5, 5, 7, 0.92) 0%,
+      rgba(5, 5, 7, 0.62) 38%,
+      rgba(5, 5, 7, 0.18) 70%,
       transparent 100%
     );
 
   backdrop-filter:
-    blur(5px);
+    blur(16px);
+
+  -webkit-mask-image:
+    linear-gradient(
+      180deg,
+      #000 0%,
+      #000 34%,
+      rgba(0, 0, 0, 0.62) 65%,
+      transparent 100%
+    );
+
+  mask-image:
+    linear-gradient(
+      180deg,
+      #000 0%,
+      #000 34%,
+      rgba(0, 0, 0, 0.62) 65%,
+      transparent 100%
+    );
 }
 
 .leftCluster,
