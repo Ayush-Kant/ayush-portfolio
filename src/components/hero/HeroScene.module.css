@@ -1,20 +1,17 @@
 .scene {
   position: relative;
 
-  width: min(
-    92%,
-    760px
+  width: 108%;
+
+  height: min(
+    74svh,
+    700px
   );
 
-  aspect-ratio:
-    1024 /
-    710;
+  min-height: 580px;
 
-  height: auto;
-
-  min-height: 0;
-
-  margin-left: auto;
+  margin-left: -6%;
+  margin-right: 0;
 
   overflow: visible;
 
@@ -28,16 +25,23 @@
   width: 100%;
   height: 100%;
 
-  object-fit: contain;
-  object-position: right center;
+  object-fit: cover;
+
+  /*
+   * Keep the subject weighted to the far-right side while
+   * preserving enough room for the desk scene.
+   */
+  object-position:
+    78%
+    50%;
 
   filter:
     saturate(0.98)
     contrast(1.02)
-    brightness(0.92);
+    brightness(0.9);
 
   transform:
-    scale(0.96);
+    scale(1.015);
 
   transform-origin:
     100%
@@ -46,17 +50,18 @@
   opacity: 0.98;
 
   /*
-   * Only the left edge fades into the page.
-   * The right side remains crisp so the character reads
-   * as the focal point on that side.
+   * Fade a broad section of the left edge. This is what lets
+   * the warm/cool artwork visually become part of the same
+   * night-sky background instead of reading as a separate box.
    */
   -webkit-mask-image:
     linear-gradient(
       90deg,
       transparent 0%,
-      rgba(0, 0, 0, 0.22) 8%,
-      rgba(0, 0, 0, 0.72) 16%,
-      #000 27%,
+      rgba(0, 0, 0, 0.05) 8%,
+      rgba(0, 0, 0, 0.26) 18%,
+      rgba(0, 0, 0, 0.72) 34%,
+      #000 50%,
       #000 100%
     );
 
@@ -64,16 +69,22 @@
     linear-gradient(
       90deg,
       transparent 0%,
-      rgba(0, 0, 0, 0.22) 8%,
-      rgba(0, 0, 0, 0.72) 16%,
-      #000 27%,
+      rgba(0, 0, 0, 0.05) 8%,
+      rgba(0, 0, 0, 0.26) 18%,
+      rgba(0, 0, 0, 0.72) 34%,
+      #000 50%,
       #000 100%
     );
 }
 
 .edgeBlend {
   position: absolute;
-  inset: -1px 0;
+
+  inset:
+    -1px
+    -7vw
+    -1px
+    -2px;
 
   z-index: 2;
 
@@ -83,15 +94,17 @@
     linear-gradient(
       90deg,
       #050507 0%,
-      rgba(5, 5, 7, 0.97) 8%,
-      rgba(5, 5, 7, 0.74) 17%,
-      rgba(5, 5, 7, 0.24) 27%,
-      transparent 37%
+      rgba(5, 5, 7, 0.98) 10%,
+      rgba(5, 5, 7, 0.8) 19%,
+      rgba(5, 5, 7, 0.46) 30%,
+      rgba(5, 5, 7, 0.14) 39%,
+      transparent 50%
     );
 }
 
 .bottomBlend {
   position: absolute;
+
   inset: 0;
 
   z-index: 3;
@@ -101,15 +114,20 @@
   background:
     linear-gradient(
       180deg,
-      transparent 70%,
-      rgba(5, 5, 7, 0.22) 84%,
+      rgba(5, 5, 7, 0.08) 0%,
+      transparent 8%,
+      transparent 84%,
+      rgba(5, 5, 7, 0.5) 96%,
       #050507 100%
     );
 }
 
 .atmosphere {
   position: absolute;
-  inset: 0;
+
+  inset:
+    -6%
+    -4%;
 
   z-index: 4;
 
@@ -117,61 +135,86 @@
 
   background:
     radial-gradient(
-      circle at 74% 44%,
-      rgba(124, 92, 255, 0.08),
+      ellipse at 57% 49%,
+      rgba(89, 63, 193, 0.075),
       transparent 34%
     ),
     radial-gradient(
-      circle at 82% 72%,
-      rgba(255, 166, 92, 0.055),
-      transparent 28%
+      ellipse at 78% 68%,
+      rgba(255, 166, 92, 0.05),
+      transparent 27%
+    ),
+    linear-gradient(
+      90deg,
+      rgba(5, 5, 7, 0.2),
+      transparent 44%
     );
 
-  mix-blend-mode: screen;
+  mix-blend-mode:
+    screen;
 }
 
-@media (max-width: 1180px) {
+@media (max-width: 1200px) {
   .scene {
-    width: min(
-      94%,
-      690px
-    );
+    width:
+      108%;
+
+    height:
+      min(
+        71svh,
+        650px
+      );
+
+    min-height:
+      540px;
   }
 
   .image {
+    object-position:
+      80%
+      50%;
+
     transform:
-      scale(0.94);
+      scale(1);
   }
 }
 
 @media (max-width: 900px) {
   .scene {
-    width: 100%;
+    width:
+      100%;
+
+    height:
+      auto;
+
+    min-height:
+      0;
 
     aspect-ratio:
       1024 /
       710;
 
-    height: auto;
-
-    min-height: 0;
-
-    margin-inline: auto;
+    margin-inline:
+      auto;
   }
 
   .image {
+    object-fit:
+      cover;
+
     object-position:
-      center center;
+      center
+      center;
 
     transform:
-      scale(0.95);
+      scale(1);
 
     -webkit-mask-image:
       linear-gradient(
         180deg,
         transparent 0%,
-        #000 18%,
-        #000 83%,
+        #000 16%,
+        #000 86%,
         transparent 100%
       );
 
@@ -179,20 +222,22 @@
       linear-gradient(
         180deg,
         transparent 0%,
-        #000 18%,
-        #000 83%,
+        #000 16%,
+        #000 86%,
         transparent 100%
       );
   }
 
   .edgeBlend {
+    inset: 0;
+
     background:
       linear-gradient(
         180deg,
         #050507 0%,
-        rgba(5, 5, 7, 0.38) 16%,
-        transparent 32%,
-        transparent 78%,
+        rgba(5, 5, 7, 0.28) 15%,
+        transparent 31%,
+        transparent 79%,
         #050507 100%
       );
   }
@@ -200,17 +245,14 @@
 
 @media (max-width: 560px) {
   .scene {
-    width: 100%;
-  }
-
-  .image {
-    transform:
-      scale(1);
+    width:
+      100%;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .image {
-    transform: none;
+    transform:
+      none;
   }
 }
