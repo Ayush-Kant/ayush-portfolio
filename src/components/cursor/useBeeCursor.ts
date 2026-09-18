@@ -144,6 +144,38 @@ export const useBeeCursor = () => {
 
         initialized = true;
 
+        /*
+         * Set the first visual position before making the bee
+         * visible. This eliminates a one-frame jump from (0, 0).
+         */
+        setVariable(
+          "--bee-x",
+          String(
+            pointer.x +
+            BEE_CONFIG.visual
+              .cursorOffsetX
+          ) +
+            "px"
+        );
+
+        setVariable(
+          "--bee-y",
+          String(
+            pointer.y +
+            BEE_CONFIG.visual
+              .cursorOffsetY
+          ) +
+            "px"
+        );
+
+        setVariable(
+          "--bee-rotation",
+          "0deg"
+        );
+
+        root.dataset.state =
+          "flying";
+
         root.dataset.visible =
           "true";
 
