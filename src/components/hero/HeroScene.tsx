@@ -1,5 +1,6 @@
+import Image from "next/image";
+
 import styles from "./HeroScene.module.css";
-import HeroAnimation from "./HeroAnimation";
 
 export default function HeroScene() {
   return (
@@ -7,8 +8,19 @@ export default function HeroScene() {
       className={styles.scene}
       aria-hidden="true"
     >
-      <HeroAnimation />
-      <div className={styles.glow} />
+      <Image
+        className={styles.image}
+        src="/hero/hero-typing-scene.webp"
+        alt=""
+        fill
+        priority
+        sizes="100vw"
+      />
+
+      <div className={styles.leftBlend} />
+      <div className={styles.topBlend} />
+      <div className={styles.bottomBlend} />
+      <div className={styles.colorAtmosphere} />
     </div>
   );
 }

@@ -8,14 +8,10 @@ export default function HeroSection() {
       className="hero-section"
       aria-labelledby="hero-title"
     >
-      <div className="hero-shell">
-        <div className="hero-text-column">
-          <HeroText />
-        </div>
+      <HeroScene />
 
-        <div className="hero-scene-column">
-          <HeroScene />
-        </div>
+      <div className="hero-content-shell">
+        <HeroText />
       </div>
 
       <div
