@@ -313,9 +313,9 @@ a {
 
   font-size:
     clamp(
-      3.55rem,
-      5.9vw,
-      6.15rem
+      3.8rem,
+      6.3vw,
+      6.5rem
     );
 
   line-height:
@@ -814,11 +814,12 @@ a {
 
   width:
     min(
-      62vw,
-      980px
+      67vw,
+      1080px
     );
 
-  height: 100%;
+  height:
+    auto;
 
   display: flex;
 
@@ -954,8 +955,8 @@ a {
   .hero-scene-column {
     width:
       min(
-        66vw,
-        960px
+        69vw,
+        1000px
       );
   }
 
