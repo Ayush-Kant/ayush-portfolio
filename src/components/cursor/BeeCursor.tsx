@@ -10,8 +10,8 @@ type Point = {
 const clamp = (value: number, min: number, max: number) =>
   Math.min(Math.max(value, min), max);
 
-const distanceBetween = (a: Point, b: Point) =>
-  Math.hypot(a.x - b.x, a.y - b.y);
+const magnitude = (x: number, y: number) =>
+  Math.hypot(x, y);
 
 export default function BeeCursor() {
   const beeRef = useRef<HTMLDivElement | null>(null);
@@ -30,9 +30,22 @@ export default function BeeCursor() {
       return;
     }
 
+    /*
+     * --------------------------------------------------------
+     * POINTER + BEE STATE
+     * --------------------------------------------------------
+     *
+     * The pointer is the destination.
+     * The bee follows a slowly moving, curved flight target.
+     */
     const pointer: Point = {
       x: window.innerWidth / 2,
       y: window.innerHeight / 2,
+    };
+
+    const previousPointer: Point = {
+      x: pointer.x,
+      y: pointer.y,
     };
 
     const position: Point = {
@@ -40,131 +53,361 @@ export default function BeeCursor() {
       y: pointer.y,
     };
 
-    const lastPosition: Point = {
+    const previousPosition: Point = {
       x: position.x,
       y: position.y,
     };
 
-    let hasPointer = false;
+    /*
+     * Direction of the POINTER, smoothed over time.
+     * Used only to shape the curved path.
+     */
+    let directionX = 1;
+    let directionY = 0;
+
+    let pointerSpeed = 0;
+    let beeSpeed = 0;
+
+    let flightPhase = Math.random() * Math.PI * 2;
+
     let lastPointerMove = performance.now();
     let lastFrame = performance.now();
-    let raf = 0;
-    let flapTime = 0;
-    let rotation = 0;
+
+    let hasPointer = false;
     let landingProgress = 0;
+    let currentRotation = 0;
+
+    let raf = 0;
 
     const onPointerMove = (event: PointerEvent) => {
       if (event.pointerType !== "mouse") return;
 
       pointer.x = event.clientX;
       pointer.y = event.clientY;
-      hasPointer = true;
+
+      const dx = pointer.x - previousPointer.x;
+      const dy = pointer.y - previousPointer.y;
+      const rawPointerSpeed = magnitude(dx, dy);
+
+      pointerSpeed = rawPointerSpeed;
+
+      if (rawPointerSpeed > 0.1) {
+        const rawDirectionX = dx / rawPointerSpeed;
+        const rawDirectionY = dy / rawPointerSpeed;
+
+        directionX +=
+          (rawDirectionX - directionX) * 0.18;
+
+        directionY +=
+          (rawDirectionY - directionY) * 0.18;
+
+        const directionLength = magnitude(
+          directionX,
+          directionY
+        );
+
+        if (directionLength > 0.001) {
+          directionX /= directionLength;
+          directionY /= directionLength;
+        }
+      }
+
+      previousPointer.x = pointer.x;
+      previousPointer.y = pointer.y;
+
       lastPointerMove = performance.now();
-      landingProgress = 0;
+      hasPointer = true;
+
+      /*
+       * Moving immediately cancels the landing transition.
+       */
+      landingProgress = Math.max(
+        0,
+        landingProgress - 0.18
+      );
 
       bee.classList.remove("bee-landed");
       bee.classList.add("bee-flying");
+      bee.classList.add("bee-visible");
     };
 
     const tick = (time: number) => {
-      const dt = Math.min((time - lastFrame) / 1000, 0.033);
+      const dt = Math.min(
+        (time - lastFrame) / 1000,
+        0.033
+      );
+
       lastFrame = time;
 
-      const idle = time - lastPointerMove;
-      const distance = distanceBetween(position, pointer);
-      const landingTarget = hasPointer && idle > 520 && distance < 18;
+      const idleTime =
+        time - lastPointerMove;
+
+      /*
+       * --------------------------------------------------------
+       * WHEN TO LAND
+       * --------------------------------------------------------
+       *
+       * The bee is allowed to land only after:
+       *
+       * 1. Pointer has stopped
+       * 2. Bee is already close
+       * 3. There has been enough idle time
+       *
+       * This prevents the bee from constantly switching
+       * between flight and landing while the cursor moves.
+       */
+      const distanceToPointer = magnitude(
+        pointer.x - position.x,
+        pointer.y - position.y
+      );
+
+      const canLand =
+        hasPointer &&
+        idleTime > 760 &&
+        pointerSpeed < 0.2 &&
+        distanceToPointer < 26;
+
+      /*
+       * Smooth landing rather than a sudden state switch.
+       */
+      const landingTarget = canLand ? 1 : 0;
+
+      const landingResponse = canLand
+        ? 0.045
+        : 0.14;
 
       landingProgress +=
-        ((landingTarget ? 1 : 0) - landingProgress) *
-        (landingTarget ? 0.055 : 0.18);
+        (landingTarget - landingProgress) *
+        landingResponse;
 
-      const follow = landingTarget ? 0.085 : 0.055;
+      /*
+       * --------------------------------------------------------
+       * CURVED FLIGHT TARGET
+       * --------------------------------------------------------
+       *
+       * We don't chase the pointer directly.
+       *
+       * A small perpendicular offset creates the characteristic
+       * loose, curved bee path from the reference image.
+       *
+       * The curve grows with pointer motion but remains bounded,
+       * so it never becomes a giant whirl.
+       */
+      const perpendicularX = -directionY;
+      const perpendicularY = directionX;
 
-      position.x += (pointer.x - position.x) * follow;
-      position.y += (pointer.y - position.y) * follow;
+      const flightStrength = clamp(
+        pointerSpeed / 8,
+        0,
+        1
+      );
 
-      const vx = position.x - lastPosition.x;
-      const vy = position.y - lastPosition.y;
+      const curveAmount =
+        (4 + flightStrength * 10) *
+        (1 - landingProgress);
 
-      lastPosition.x = position.x;
-      lastPosition.y = position.y;
+      const slowSway =
+        Math.sin(
+          time * (0.0028 + flightStrength * 0.001)
+          + flightPhase
+        ) * curveAmount;
 
-      const speed = Math.hypot(vx, vy);
-      const flight = clamp(speed / 4.8, 0, 1);
+      const gentleLoop =
+        Math.sin(
+          time * 0.0019 +
+            flightPhase * 0.7
+        ) *
+        1.8 *
+        flightStrength *
+        (1 - landingProgress);
 
-      const wanderX =
-        Math.sin(time * (0.0055 + flight * 0.0025)) *
-        (2.2 + flight * 3.8);
+      /*
+       * Add a tiny trailing offset opposite to movement.
+       * This makes the bee feel like it has inertia.
+       */
+      const lagAmount =
+        (5 + flightStrength * 12) *
+        (1 - landingProgress);
 
-      const wanderY =
-        Math.cos(time * (0.0068 + flight * 0.0024)) *
-        (1.6 + flight * 3.0);
+      const flightTargetX =
+        pointer.x +
+        perpendicularX * (slowSway + gentleLoop) -
+        directionX * lagAmount;
 
-      const microX =
-        Math.sin(time * 0.0125) * (0.4 + flight * 0.8);
+      const flightTargetY =
+        pointer.y +
+        perpendicularY * (slowSway + gentleLoop) -
+        directionY * lagAmount;
 
-      const microY =
-        Math.sin(time * 0.0091) * (0.35 + flight * 0.65);
+      /*
+       * While landed, the flight target collapses onto
+       * the cursor. This is what removes sitting jitter.
+       */
+      const landingX =
+        pointer.x + 2;
 
-      const desiredRotation =
-        clamp(vx * 1.8, -17, 17) * (1 - landingProgress);
+      const landingY =
+        pointer.y - 6;
 
-      rotation += (desiredRotation - rotation) * 0.08;
+      const desiredX =
+        flightTargetX *
+          (1 - landingProgress) +
+        landingX *
+          landingProgress;
 
-      const landingXOffset = 2;
-      const flyingX = position.x + landingXOffset + wanderX + microX;
-      const flyingY = position.y - 8 + wanderY + microY;
+      const desiredY =
+        flightTargetY *
+          (1 - landingProgress) +
+        landingY *
+          landingProgress;
 
-      const landedX = position.x + landingXOffset;
-      const landedY =
-        position.y -
-        7 +
-        Math.sin(time * 0.0045) * 0.45;
+      /*
+       * --------------------------------------------------------
+       * SLOW FOLLOW
+       * --------------------------------------------------------
+       *
+       * Deliberately slower than the pointer.
+       *
+       * Faster cursor movement makes the bee take longer to
+       * arrive, while slow movement allows it to settle.
+       */
+      const follow =
+        canLand
+          ? 0.09
+          : 0.035 + flightStrength * 0.014;
 
-      const x =
-        flyingX * (1 - landingProgress) +
-        landedX * landingProgress;
+      previousPosition.x = position.x;
+      previousPosition.y = position.y;
 
-      const y =
-        flyingY * (1 - landingProgress) +
-        landedY * landingProgress;
+      position.x +=
+        (desiredX - position.x) *
+        follow;
 
-      const flightLift =
-        Math.min(2.5, speed * 0.35) * (1 - landingProgress);
+      position.y +=
+        (desiredY - position.y) *
+        follow;
+
+      const beeVX =
+        position.x - previousPosition.x;
+
+      const beeVY =
+        position.y - previousPosition.y;
+
+      beeSpeed = magnitude(
+        beeVX,
+        beeVY
+      );
+
+      /*
+       * --------------------------------------------------------
+       * NATURAL DIRECTION / TILT
+       * --------------------------------------------------------
+       *
+       * Less exaggerated than before.
+       */
+      const targetRotation =
+        canLand
+          ? 0
+          : clamp(
+              beeVX * 1.25,
+              -12,
+              12
+            );
+
+      currentRotation +=
+        (targetRotation - currentRotation) *
+        0.055;
+
+      /*
+       * --------------------------------------------------------
+       * WING FLUTTER
+       * --------------------------------------------------------
+       *
+       * We drive it from requestAnimationFrame so:
+       * - fast flight = faster wing beat
+       * - slow flight = slower beat
+       * - landed = very gentle flutter
+       */
+      const visualFlight =
+        clamp(
+          Math.max(
+            pointerSpeed,
+            beeSpeed * 1.8
+          ) / 7,
+          0,
+          1
+        );
 
       const wingFrequency =
-        landingProgress > 0.75 ? 2.5 : 9 + flight * 13;
+        landingProgress > 0.7
+          ? 2.1
+          : 8.5 + visualFlight * 8.5;
 
-      flapTime += dt * wingFrequency * Math.PI * 2;
+      flightPhase +=
+        dt *
+        wingFrequency *
+        Math.PI *
+        2;
 
-      const wingPhase = Math.sin(flapTime);
-      const wingPhaseOffset = Math.sin(
-        flapTime + Math.PI * 0.85
+      const wingWave =
+        Math.sin(flightPhase);
+
+      const secondWingWave =
+        Math.sin(
+          flightPhase +
+            Math.PI * 0.78
+        );
+
+      /*
+       * Small body bob only while flying.
+       * It disappears almost completely while landed.
+       */
+      const bodyBob =
+        Math.sin(time * 0.0055 + flightPhase) *
+        0.45 *
+        visualFlight *
+        (1 - landingProgress);
+
+      bee.style.setProperty(
+        "--bee-x",
+        position.x + "px"
       );
 
-      bee.style.setProperty("--bee-x", x + "px");
       bee.style.setProperty(
         "--bee-y",
-        y - flightLift + "px"
-      );
-      bee.style.setProperty(
-        "--bee-rotation",
-        rotation + "deg"
-      );
-      bee.style.setProperty(
-        "--wing-angle",
-        -48 + (wingPhase + 1) * 34 + "deg"
-      );
-      bee.style.setProperty(
-        "--wing-angle-secondary",
-        42 - (wingPhaseOffset + 1) * 28 + "deg"
-      );
-      bee.style.setProperty(
-        "--wing-scale",
-        0.72 + flight * 0.28 + ""
+        position.y - 8 + bodyBob + "px"
       );
 
-      bee.classList.toggle("bee-flying", !landingTarget);
+      bee.style.setProperty(
+        "--bee-rotation",
+        currentRotation + "deg"
+      );
+
+      bee.style.setProperty(
+        "--wing-left-angle",
+        -22 + wingWave * 25 + "deg"
+      );
+
+      bee.style.setProperty(
+        "--wing-right-angle",
+        22 - secondWingWave * 25 + "deg"
+      );
+
+      bee.style.setProperty(
+        "--wing-scale",
+        0.88 + visualFlight * 0.12 + ""
+      );
+
+      bee.style.setProperty(
+        "--landing-progress",
+        landingProgress + ""
+      );
+
+      bee.classList.toggle(
+        "bee-flying",
+        !canLand
+      );
+
       bee.classList.toggle(
         "bee-landed",
         landingProgress > 0.72
@@ -173,14 +416,26 @@ export default function BeeCursor() {
       raf = requestAnimationFrame(tick);
     };
 
-    window.addEventListener("pointermove", onPointerMove, {
-      passive: true,
-    });
+    window.addEventListener(
+      "pointermove",
+      onPointerMove,
+      { passive: true }
+    );
+
+    /*
+     * Don't show the bee until the visitor has actually
+     * moved the pointer.
+     */
+    bee.style.opacity = "0";
 
     raf = requestAnimationFrame(tick);
 
     return () => {
-      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener(
+        "pointermove",
+        onPointerMove
+      );
+
       cancelAnimationFrame(raf);
     };
   }, []);
@@ -193,20 +448,26 @@ export default function BeeCursor() {
     >
       <svg
         className="bee-svg"
-        viewBox="0 0 44 34"
+        viewBox="0 0 48 36"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
         <defs>
           <linearGradient
             id="beeBodyGradient"
-            x1="9"
-            y1="7"
-            x2="34"
-            y2="28"
+            x1="13"
+            y1="9"
+            x2="39"
+            y2="27"
           >
-            <stop offset="0" stopColor="#FFE36A" />
-            <stop offset="1" stopColor="#F2B632" />
+            <stop
+              offset="0"
+              stopColor="#FFE875"
+            />
+            <stop
+              offset="1"
+              stopColor="#F0B52E"
+            />
           </linearGradient>
 
           <linearGradient
@@ -218,112 +479,192 @@ export default function BeeCursor() {
           >
             <stop
               offset="0"
-              stopColor="#F2EFFF"
-              stopOpacity="0.78"
+              stopColor="#FFFFFF"
+              stopOpacity="0.9"
+            />
+            <stop
+              offset="0.65"
+              stopColor="#E9DEFF"
+              stopOpacity="0.72"
             />
             <stop
               offset="1"
-              stopColor="#BDA8FF"
-              stopOpacity="0.35"
+              stopColor="#B59AFF"
+              stopOpacity="0.28"
             />
           </linearGradient>
         </defs>
 
-        <ellipse
-          className="bee-wing bee-wing-rear"
-          cx="13"
-          cy="9"
-          rx="8"
-          ry="4.8"
-          transform="rotate(-28 13 9)"
-          fill="url(#beeWingGradient)"
-          stroke="#F8F5FF"
-          strokeOpacity="0.75"
-          strokeWidth="0.8"
-        />
-
-        <ellipse
-          className="bee-wing bee-wing-front"
-          cx="23"
-          cy="7.5"
-          rx="8.4"
-          ry="4.9"
-          transform="rotate(23 23 7.5)"
+        {/* --------------------------------------------------
+            REAR WING
+        -------------------------------------------------- */}
+        <path
+          className="bee-wing bee-wing-left"
+          d="M18.2 11.5C11.7 5.6 6.8 6.1 5.5 9.8C4.2 13.5 8 17.3 15.9 16.8"
           fill="url(#beeWingGradient)"
           stroke="#FFFFFF"
-          strokeOpacity="0.8"
-          strokeWidth="0.8"
+          strokeOpacity="0.82"
+          strokeWidth="0.9"
+        />
+
+        {/* --------------------------------------------------
+            FRONT WING
+        -------------------------------------------------- */}
+        <path
+          className="bee-wing bee-wing-right"
+          d="M25.2 10.5C28.4 4.3 34.6 3.2 37.2 6.2C39.8 9.3 36.3 14.1 28.9 15.3"
+          fill="url(#beeWingGradient)"
+          stroke="#FFFFFF"
+          strokeOpacity="0.85"
+          strokeWidth="0.9"
+        />
+
+        {/* Wing detail */}
+        <path
+          d="M8.7 10.1C11.6 9.3 14.2 10.4 16.4 12.2"
+          stroke="#FFFFFF"
+          strokeOpacity="0.34"
+          strokeWidth="0.65"
+          strokeLinecap="round"
         />
 
         <path
-          d="M16 10C13.8 6.6 13.5 4.3 15.7 2.8"
-          stroke="#D8B23C"
+          d="M32.9 6.8C31 8.1 29.7 10.3 28.8 12.8"
+          stroke="#FFFFFF"
+          strokeOpacity="0.34"
+          strokeWidth="0.65"
+          strokeLinecap="round"
+        />
+
+        {/* --------------------------------------------------
+            ANTENNAE
+        -------------------------------------------------- */}
+        <path
+          d="M20 9.6C17.3 6.8 17.5 3.7 19.7 2"
+          stroke="#26202A"
           strokeWidth="1"
           strokeLinecap="round"
         />
+
         <path
-          d="M21 9.6C20.8 6 22.3 3.8 24.6 3"
-          stroke="#D8B23C"
+          d="M24.3 8.5C23.8 5.6 25.1 3.2 27.4 2.5"
+          stroke="#26202A"
           strokeWidth="1"
           strokeLinecap="round"
         />
 
-        <circle cx="15.7" cy="2.7" r="1.05" fill="#F6D05B" />
-        <circle cx="24.8" cy="2.9" r="1.05" fill="#F6D05B" />
+        <circle
+          cx="19.6"
+          cy="1.9"
+          r="1.15"
+          fill="#26202A"
+        />
 
-        <g className="bee-body">
-          <ellipse
-            cx="21.5"
-            cy="18"
-            rx="12.2"
-            ry="8"
-            fill="url(#beeBodyGradient)"
-            stroke="#241B22"
-            strokeWidth="1.15"
-          />
+        <circle
+          cx="27.7"
+          cy="2.4"
+          r="1.15"
+          fill="#26202A"
+        />
 
-          <path
-            d="M15 11.8C14 15.4 14.3 21 16.2 24"
-            stroke="#241B22"
-            strokeWidth="2.45"
-            strokeLinecap="round"
-          />
-          <path
-            d="M21 10.4C20.1 14.5 20.4 21.7 21.9 25.6"
-            stroke="#241B22"
-            strokeWidth="2.45"
-            strokeLinecap="round"
-          />
-          <path
-            d="M27 11.7C26 15 26.3 20.5 27.4 23.8"
-            stroke="#241B22"
-            strokeWidth="2.4"
-            strokeLinecap="round"
-          />
+        {/* --------------------------------------------------
+            HEAD
+        -------------------------------------------------- */}
+        <circle
+          cx="31.7"
+          cy="15.8"
+          r="5.1"
+          fill="#28202A"
+        />
 
-          <circle cx="29.5" cy="15.9" r="1.05" fill="#241B22" />
-          <circle cx="32.2" cy="16.8" r="1.05" fill="#241B22" />
+        {/* --------------------------------------------------
+            ABDOMEN
+        -------------------------------------------------- */}
+        <ellipse
+          cx="21.7"
+          cy="18.1"
+          rx="11.8"
+          ry="7.5"
+          fill="url(#beeBodyGradient)"
+          stroke="#28202A"
+          strokeWidth="1"
+        />
 
-          <path
-            d="M29.4 19.1C30.5 20.4 32.1 20.5 33.2 19.5"
-            stroke="#241B22"
-            strokeWidth="0.95"
-            strokeLinecap="round"
-          />
-
-          <ellipse
-            cx="28.6"
-            cy="18.9"
-            rx="1.15"
-            ry="0.72"
-            fill="#E891A2"
-            opacity="0.65"
-          />
-        </g>
+        {/* Black stripes */}
+        <path
+          d="M15 11.9C13.9 14.9 14 20.7 15.3 23.7"
+          stroke="#28202A"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+        />
 
         <path
-          d="M9.8 19.3L5.1 20.3L9.9 21.8"
-          fill="#241B22"
+          d="M20.7 10.7C19.8 14.7 20 22.2 21.2 25.2"
+          stroke="#28202A"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+        />
+
+        <path
+          d="M26.3 11C25.2 14.4 25.5 20.2 26.8 23.8"
+          stroke="#28202A"
+          strokeWidth="2.4"
+          strokeLinecap="round"
+        />
+
+        {/* Face */}
+        <circle
+          cx="30.2"
+          cy="14.8"
+          r="0.85"
+          fill="#FFFFFF"
+        />
+
+        <circle
+          cx="33.4"
+          cy="14.8"
+          r="0.85"
+          fill="#FFFFFF"
+        />
+
+        <circle
+          cx="30.25"
+          cy="14.85"
+          r="0.37"
+          fill="#28202A"
+        />
+
+        <circle
+          cx="33.45"
+          cy="14.85"
+          r="0.37"
+          fill="#28202A"
+        />
+
+        <path
+          d="M30.1 18C30.9 18.8 32.3 18.8 33.1 18"
+          stroke="#FFFFFF"
+          strokeOpacity="0.9"
+          strokeWidth="0.65"
+          strokeLinecap="round"
+        />
+
+        {/* Cheek */}
+        <ellipse
+          cx="29.3"
+          cy="18"
+          rx="1.2"
+          ry="0.65"
+          fill="#F08FA3"
+          opacity="0.7"
+        />
+
+        {/* --------------------------------------------------
+            STINGER
+        -------------------------------------------------- */}
+        <path
+          d="M9.8 17.7L5 18.8L9.8 20.4"
+          fill="#28202A"
         />
       </svg>
     </div>
