@@ -2,23 +2,30 @@
   position: relative;
 
   width: min(64vw, 980px);
-  aspect-ratio: 1024 / 710;
+
+  aspect-ratio:
+    1024 /
+    710;
 
   flex: 0 0 auto;
 
   overflow: hidden;
 
+  border-radius: 26px;
+
   isolation: isolate;
 
   filter:
     drop-shadow(
-      0 30px 70px rgba(0, 0, 0, 0.36)
+      0 30px 70px
+        rgba(0, 0, 0, 0.36)
     );
 }
 
 .baseImage,
 .overlayImage {
   object-fit: cover;
+
   object-position: center;
 }
 
@@ -30,6 +37,7 @@
 .typingHandLayer,
 .catLayer {
   position: absolute;
+
   inset: 0;
 
   z-index: 2;
@@ -42,12 +50,17 @@
 }
 
 .waveLayer {
-  z-index: 4;
+  z-index: 5;
 
   animation:
     hero-wave-intro
     2.2s
-    cubic-bezier(0.22, 0.8, 0.25, 1)
+    cubic-bezier(
+      0.22,
+      0.82,
+      0.25,
+      1
+    )
     0.35s
     both;
 }
@@ -66,31 +79,39 @@
 .catLayer {
   z-index: 3;
 
-  transform-origin: 16% 82%;
+  transform-origin:
+    16%
+    82%;
 
   animation:
     hero-cat-breathe
     3s
-    cubic-bezier(0.37, 0, 0.63, 1)
+    cubic-bezier(
+      0.37,
+      0,
+      0.63,
+      1
+    )
     infinite;
 }
 
 .sceneGlow {
   position: absolute;
+
   inset: 0;
 
-  z-index: 5;
+  z-index: 6;
 
   pointer-events: none;
 
   background:
     linear-gradient(
       90deg,
-      rgba(5, 5, 7, 0.22) 0%,
-      transparent 25%
+      rgba(5, 5, 7, 0.1),
+      transparent 28%
     ),
     radial-gradient(
-      circle at 82% 68%,
+      circle at 80% 66%,
       rgba(126, 93, 255, 0.1),
       transparent 30%
     );
@@ -101,69 +122,106 @@
 @keyframes hero-wave-intro {
   0% {
     opacity: 0;
+
     transform:
       rotate(0deg)
-      translate3d(0, 32px, 0)
-      scale(0.96);
+      translate3d(
+        -1px,
+        34px,
+        0
+      )
+      scale(0.97);
   }
 
-  22% {
+  16% {
     opacity: 1;
   }
 
-  38% {
+  34% {
     transform:
-      rotate(-7deg)
-      translate3d(-2px, 1px, 0)
-      scale(1.015);
-  }
-
-  54% {
-    transform:
-      rotate(7deg)
-      translate3d(2px, 0, 0)
-      scale(1.015);
-  }
-
-  70% {
-    transform:
-      rotate(-5deg)
-      translate3d(-1px, 0, 0)
+      rotate(-8deg)
+      translate3d(
+        -1px,
+        0,
+        0
+      )
       scale(1.01);
   }
 
-  84% {
+  49% {
     transform:
-      rotate(4deg)
-      translate3d(1px, 0, 0)
+      rotate(8deg)
+      translate3d(
+        2px,
+        0,
+        0
+      )
+      scale(1.015);
+  }
+
+  64% {
+    transform:
+      rotate(-6deg)
+      translate3d(
+        -1px,
+        0,
+        0
+      )
+      scale(1.01);
+  }
+
+  79% {
+    transform:
+      rotate(5deg)
+      translate3d(
+        1px,
+        1px,
+        0
+      )
       scale(1.005);
   }
 
   100% {
     opacity: 0;
+
     transform:
       rotate(0deg)
-      translate3d(0, 40px, 0)
-      scale(0.98);
+      translate3d(
+        0,
+        30px,
+        0
+      )
+      scale(0.985);
   }
 }
 
 @keyframes hero-typing-hand {
   0%,
   100% {
-    transform: translate3d(
-      0,
-      0,
-      0
-    );
+    transform:
+      translate3d(
+        0,
+        0,
+        0
+      );
   }
 
-  50% {
-    transform: translate3d(
-      0,
-      1.4px,
-      0
-    );
+  48% {
+    transform:
+      translate3d(
+        0,
+        1.4px,
+        0
+      );
+  }
+
+  52% {
+    transform:
+      translate3d(
+        0,
+        -0.55px,
+        0
+      );
   }
 }
 
@@ -171,13 +229,21 @@
   0%,
   100% {
     transform:
-      translate3d(0, 0, 0)
+      translate3d(
+        0,
+        0,
+        0
+      )
       scaleY(1);
   }
 
   50% {
     transform:
-      translate3d(0, 0.45px, 0)
+      translate3d(
+        0,
+        0.35px,
+        0
+      )
       scaleY(1.018);
   }
 }
@@ -191,6 +257,15 @@
 @media (max-width: 900px) {
   .scene {
     width: 100%;
+
     max-width: 760px;
+
+    border-radius: 22px;
+  }
+}
+
+@media (max-width: 560px) {
+  .scene {
+    border-radius: 18px;
   }
 }
