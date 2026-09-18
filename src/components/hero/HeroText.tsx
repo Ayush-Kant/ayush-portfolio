@@ -8,7 +8,7 @@ export default function HeroText() {
         <span className="hero-terminal-prompt">
           &gt;
         </span>
-        HELLO WORLD!
+        HELLO WORLD! 👋
         <span
           className="hero-kicker-star"
           aria-hidden="true"
