@@ -139,6 +139,13 @@ export default function BeeCursor() {
 
       lastFrame = time;
 
+      /*
+       * Pointer velocity is an impulse rather than a permanent
+       * state. Let it decay after the mouse stops so the bee can
+       * eventually transition into its resting/landing behavior.
+       */
+      pointerSpeed *= Math.pow(0.0008, dt);
+
       const idleTime =
         time - lastPointerMove;
 
@@ -273,8 +280,8 @@ export default function BeeCursor() {
        */
       const follow =
         canLand
-          ? 0.09
-          : 0.035 + flightStrength * 0.014;
+          ? 0.075
+          : 0.028 + flightStrength * 0.010;
 
       previousPosition.x = position.x;
       previousPosition.y = position.y;
