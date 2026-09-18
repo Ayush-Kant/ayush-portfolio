@@ -172,9 +172,9 @@
 
   font-size:
     clamp(
-      0.88rem,
-      1vw,
-      1rem
+      0.98rem,
+      1.08vw,
+      1.08rem
     );
 
   font-weight: 600;
@@ -261,17 +261,17 @@
 
   color:
     rgba(
-      240,
-      234,
-      252,
-      0.75
+      247,
+      243,
+      255,
+      0.92
     );
 
   font-size:
-    0.78rem;
+    0.9rem;
 
   font-weight:
-    520;
+    560;
 
   text-decoration: none;
 
@@ -349,6 +349,10 @@
 }
 
 .connectButton {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+
   display: inline-flex;
 
   align-items: center;
@@ -395,7 +399,7 @@
     );
 
   font-size:
-    0.8rem;
+    0.92rem;
 
   font-weight:
     650;
@@ -422,6 +426,140 @@
     background 180ms ease,
     border-color 180ms ease,
     box-shadow 180ms ease;
+
+  animation:
+    connect-pulse
+    3.2s
+    ease-in-out
+    infinite;
+}
+
+.connectButton::before {
+  content: "";
+
+  position: absolute;
+  inset: -2px;
+
+  z-index: -2;
+
+  border-radius: inherit;
+
+  background:
+    conic-gradient(
+      from 0deg,
+      transparent 0deg,
+      rgba(182, 150, 255, 0.05) 55deg,
+      rgba(207, 184, 255, 0.92) 110deg,
+      rgba(142, 102, 255, 0.18) 170deg,
+      transparent 235deg,
+      rgba(255, 255, 255, 0.5) 285deg,
+      transparent 340deg
+    );
+
+  filter:
+    blur(7px);
+
+  opacity: 0.72;
+
+  animation:
+    connect-orbit
+    4.5s
+    linear
+    infinite;
+}
+
+.connectButton::after {
+  content: "";
+
+  position: absolute;
+
+  top: -40%;
+  left: -75%;
+
+  width: 42%;
+  height: 180%;
+
+  z-index: -1;
+
+  transform:
+    rotate(18deg);
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.2),
+      transparent
+    );
+
+  filter:
+    blur(2px);
+
+  opacity: 0;
+
+  animation:
+    connect-shine
+    3.8s
+    ease-in-out
+    infinite;
+}
+
+.connectButton > * {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes connect-orbit {
+  from {
+    transform:
+      rotate(0deg);
+  }
+
+  to {
+    transform:
+      rotate(360deg);
+  }
+}
+
+@keyframes connect-shine {
+  0%,
+  52% {
+    left: -75%;
+    opacity: 0;
+  }
+
+  62% {
+    opacity: 1;
+  }
+
+  76% {
+    left: 130%;
+    opacity: 0;
+  }
+
+  100% {
+    left: 130%;
+    opacity: 0;
+  }
+}
+
+@keyframes connect-pulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0
+        rgba(169, 140, 255, 0),
+      0 10px 28px
+        rgba(94, 67, 164, 0.08);
+  }
+
+  50% {
+    box-shadow:
+      0 0 24px
+        rgba(169, 140, 255, 0.2),
+      0 12px 34px
+        rgba(94, 67, 164, 0.2);
+  }
 }
 
 .connectButton:hover {
@@ -488,14 +626,17 @@
 
   .navItem {
     padding-inline:
-      13px;
+      14px;
+
+    font-size:
+      0.86rem;
   }
 
   .connectButton {
-    gap: 14px;
+    gap: 15px;
 
     padding-inline:
-      16px;
+      18px;
   }
 }
 
@@ -539,10 +680,10 @@
       38px;
 
     padding-inline:
-      11px;
+      12px;
 
     font-size:
-      0.72rem;
+      0.78rem;
   }
 
   .avatarFrame {
@@ -558,12 +699,12 @@
       46px;
 
     padding-inline:
-      14px;
+      15px;
 
-    gap: 7px;
+    gap: 8px;
 
     font-size:
-      0.72rem;
+      0.78rem;
   }
 
   .arrow {
@@ -645,5 +786,11 @@
   .connectButton,
   .arrow {
     transition: none;
+    animation: none;
+  }
+
+  .connectButton::before,
+  .connectButton::after {
+    animation: none;
   }
 }
