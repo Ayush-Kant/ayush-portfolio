@@ -96,8 +96,8 @@ export default function TypewriterTitle() {
       )
     );
 
-  const isTyping =
-    visibleCount <
+  const isComplete =
+    visibleCount >=
     totalLength;
 
   return (
@@ -116,15 +116,6 @@ export default function TypewriterTitle() {
             firstLineCount
           )}
         </span>
-
-        {isTyping &&
-          visibleCount <=
-            FIRST_LINE.length && (
-            <span
-              className="hero-title-caret"
-              aria-hidden="true"
-            />
-          )}
       </span>
 
       <span
@@ -136,14 +127,14 @@ export default function TypewriterTitle() {
           nameCount
         )}
 
-        {isTyping &&
-          visibleCount >
-            FIRST_LINE.length && (
-            <span
-              className="hero-title-caret"
-              aria-hidden="true"
-            />
-          )}
+        {isComplete && (
+          <span
+            className="hero-title-caret"
+            aria-hidden="true"
+          >
+            |
+          </span>
+        )}
       </span>
 
       <span className="sr-only">
