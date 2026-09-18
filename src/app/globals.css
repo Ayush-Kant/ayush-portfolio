@@ -172,6 +172,9 @@ a {
   z-index: 12;
 
   min-width: 0;
+
+  display: flex;
+  align-items: center;
 }
 
 .hero-copy {
@@ -367,7 +370,7 @@ a {
 
 .hero-role {
   margin:
-    28px
+    22px
     0
     0;
 
