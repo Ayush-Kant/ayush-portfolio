@@ -133,9 +133,9 @@ a {
   overflow: hidden;
 
   padding:
-    clamp(112px, 12vh, 140px)
-    clamp(22px, 5vw, 82px)
-    clamp(70px, 8vh, 96px);
+    clamp(108px, 11vh, 128px)
+    clamp(22px, 4.8vw, 76px)
+    clamp(58px, 7vh, 82px);
 }
 
 .hero-shell {
@@ -153,16 +153,16 @@ a {
   display: grid;
 
   grid-template-columns:
-    minmax(420px, 0.9fr)
-    minmax(500px, 1.1fr);
+    minmax(420px, 0.88fr)
+    minmax(560px, 1.12fr);
 
   align-items: center;
 
   gap:
     clamp(
       28px,
-      4vw,
-      78px
+      3vw,
+      58px
     );
 }
 
@@ -177,7 +177,7 @@ a {
 .hero-copy {
   width: min(
     100%,
-    680px
+    620px
   );
 
   animation:
@@ -210,7 +210,7 @@ a {
   margin:
     0
     0
-    20px;
+    16px;
 
   color:
     rgba(
@@ -270,9 +270,9 @@ a {
 
   font-size:
     clamp(
-      4.15rem,
-      7.4vw,
-      7.8rem
+      3.9rem,
+      6.25vw,
+      6.5rem
     );
 
   line-height:
@@ -381,9 +381,9 @@ a {
 
   font-size:
     clamp(
-      1.05rem,
-      1.65vw,
-      1.42rem
+      0.98rem,
+      1.28vw,
+      1.18rem
     );
 
   line-height:
@@ -408,10 +408,10 @@ a {
 
 .hero-description {
   max-width:
-    630px;
+    560px;
 
   margin:
-    14px
+    12px
     0
     0;
 
@@ -425,9 +425,9 @@ a {
 
   font-size:
     clamp(
-      0.98rem,
-      1.17vw,
-      1.1rem
+      0.92rem,
+      1.05vw,
+      1rem
     );
 
   line-height:
@@ -444,7 +444,7 @@ a {
   gap: 8px;
 
   margin-top:
-    24px;
+    20px;
 }
 
 .hero-badge {
@@ -455,7 +455,7 @@ a {
   gap: 8px;
 
   min-height:
-    36px;
+    34px;
 
   padding:
     7px
@@ -491,7 +491,7 @@ a {
     );
 
   font-size:
-    0.75rem;
+    0.7rem;
 
   backdrop-filter:
     blur(10px);
@@ -509,7 +509,7 @@ a {
   gap: 11px;
 
   margin-top:
-    29px;
+    25px;
 }
 
 .hero-button {
@@ -521,7 +521,7 @@ a {
   gap: 11px;
 
   min-height:
-    51px;
+    49px;
 
   padding:
     0
@@ -531,7 +531,7 @@ a {
     14px;
 
   font-size:
-    0.9rem;
+    0.85rem;
 
   font-weight:
     700;
@@ -653,7 +653,7 @@ a {
     18px;
 
   margin-top:
-    30px;
+    26px;
 
   color:
     rgba(
@@ -672,7 +672,7 @@ a {
     monospace;
 
   font-size:
-    0.63rem;
+    0.59rem;
 
   letter-spacing:
     0.05em;
@@ -715,7 +715,7 @@ a {
 
 .hero-signature {
   margin:
-    24px
+    20px
     0
     0;
 
@@ -733,7 +733,7 @@ a {
     cursive;
 
   font-size:
-    0.9rem;
+    0.84rem;
 
   line-height:
     1.55;
