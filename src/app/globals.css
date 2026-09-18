@@ -139,15 +139,18 @@ a {
 
   min-height: 0;
 
+  margin-top:
+    72px;
+
   display: flex;
   align-items: center;
 
   overflow: hidden;
 
   padding:
-    20px
+    18px
     var(--hero-gutter)
-    28px;
+    26px;
 
   -webkit-mask-image:
     linear-gradient(
