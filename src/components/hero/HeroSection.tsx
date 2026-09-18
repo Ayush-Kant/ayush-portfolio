@@ -12,10 +12,10 @@ export default function HeroSection() {
         <div className="hero-text-column">
           <HeroText />
         </div>
+      </div>
 
-        <div className="hero-scene-column">
-          <HeroScene />
-        </div>
+      <div className="hero-scene-column">
+        <HeroScene />
       </div>
 
       <div
