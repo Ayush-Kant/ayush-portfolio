@@ -38,10 +38,14 @@ body {
 .starfield-layer {
   position: fixed;
   inset: 0;
+
   z-index: 0;
+
   width: 100%;
   height: 100%;
+
   overflow: hidden;
+
   pointer-events: none;
 
   background:
@@ -66,6 +70,7 @@ body {
 
 .starfield-layer::before {
   content: "";
+
   position: absolute;
   inset: 0;
 
@@ -80,6 +85,7 @@ body {
 
 .starfield-layer canvas {
   display: block;
+
   width: 100%;
   height: 100%;
 }
@@ -88,161 +94,4 @@ body {
   position: relative;
   z-index: 1;
   min-height: 100vh;
-}
-
-/* =========================================================
-   BEE CURSOR
-   ========================================================= */
-
-.bee-cursor {
-  --bee-x: 50vw;
-  --bee-y: 50vh;
-  --bee-rotation: 0deg;
-  --wing-left-angle: -10deg;
-  --wing-right-angle: 10deg;
-  --wing-scale: 0.9;
-  --landing-progress: 0;
-
-  position: fixed;
-  left: 0;
-  top: 0;
-
-  width: 48px;
-  height: 36px;
-
-  z-index: 9999;
-  pointer-events: none;
-
-  transform:
-    translate3d(
-      calc(var(--bee-x) - 50%),
-      calc(var(--bee-y) - 50%),
-      0
-    )
-    rotate(var(--bee-rotation));
-
-  transform-origin: 52% 52%;
-
-  will-change: transform, opacity;
-
-  opacity: 0;
-
-  filter:
-    drop-shadow(
-      0 2px 5px rgba(0, 0, 0, 0.38)
-    );
-
-  transition:
-    opacity 180ms ease;
-}
-
-.bee-cursor.bee-visible {
-  opacity: 1;
-}
-
-.bee-svg {
-  display: block;
-  width: 48px;
-  height: 36px;
-  overflow: visible;
-}
-
-/* =========================================================
-   WINGS
-   ========================================================= */
-
-.bee-wing {
-  transform-box: fill-box;
-  will-change: transform;
-}
-
-.bee-wing-left {
-  transform-origin: 78% 76%;
-  transform:
-    rotate(var(--wing-left-angle))
-    scaleY(var(--wing-scale));
-}
-
-.bee-wing-right {
-  transform-origin: 25% 78%;
-  transform:
-    rotate(var(--wing-right-angle))
-    scaleY(var(--wing-scale));
-}
-
-/*
- * The JS animation loop controls the wing angle while
- * the pointer is moving. When the bee lands, these very
- * small CSS flutters take over.
- */
-
-.bee-landed .bee-wing-left,
-.bee-landed .bee-wing-right {
-  animation:
-    bee-resting-wing
-    1.55s
-    ease-in-out
-    infinite;
-}
-
-@keyframes bee-resting-wing {
-  0% {
-    transform:
-      rotate(-3deg)
-      scaleY(0.9);
-  }
-
-  50% {
-    transform:
-      rotate(3deg)
-      scaleY(0.94);
-  }
-
-  100% {
-    transform:
-      rotate(-3deg)
-      scaleY(0.9);
-  }
-}
-
-/* =========================================================
-   BODY
-   ========================================================= */
-
-.bee-body {
-  transform-box: fill-box;
-  transform-origin: center center;
-}
-
-/*
- * No continuous CSS animation is applied to the body.
- * This intentionally prevents the old "whirling while
- * sitting" feeling.
- */
-
-/* =========================================================
-   LANDING
-   ========================================================= */
-
-.bee-landed {
-  filter:
-    drop-shadow(
-      0 2px 5px rgba(247, 201, 72, 0.14)
-    );
-}
-
-/* =========================================================
-   TOUCH / ACCESSIBILITY
-   ========================================================= */
-
-@media (pointer: coarse) {
-  .bee-cursor {
-    display: none !important;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .bee-cursor {
-    display: none !important;
-  }
 }
