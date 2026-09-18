@@ -1,0 +1,196 @@
+.scene {
+  position: relative;
+
+  width: min(64vw, 980px);
+  aspect-ratio: 1024 / 710;
+
+  flex: 0 0 auto;
+
+  overflow: hidden;
+
+  isolation: isolate;
+
+  filter:
+    drop-shadow(
+      0 30px 70px rgba(0, 0, 0, 0.36)
+    );
+}
+
+.baseImage,
+.overlayImage {
+  object-fit: cover;
+  object-position: center;
+}
+
+.baseImage {
+  z-index: 1;
+}
+
+.waveLayer,
+.typingHandLayer,
+.catLayer {
+  position: absolute;
+  inset: 0;
+
+  z-index: 2;
+
+  overflow: hidden;
+
+  transform-origin: center center;
+
+  pointer-events: none;
+}
+
+.waveLayer {
+  z-index: 4;
+
+  animation:
+    hero-wave-intro
+    2.2s
+    cubic-bezier(0.22, 0.8, 0.25, 1)
+    0.35s
+    both;
+}
+
+.typingHandLayer {
+  z-index: 3;
+
+  animation:
+    hero-typing-hand
+    720ms
+    ease-in-out
+    2.2s
+    infinite;
+}
+
+.catLayer {
+  z-index: 3;
+
+  transform-origin: 16% 82%;
+
+  animation:
+    hero-cat-breathe
+    3s
+    cubic-bezier(0.37, 0, 0.63, 1)
+    infinite;
+}
+
+.sceneGlow {
+  position: absolute;
+  inset: 0;
+
+  z-index: 5;
+
+  pointer-events: none;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(5, 5, 7, 0.22) 0%,
+      transparent 25%
+    ),
+    radial-gradient(
+      circle at 82% 68%,
+      rgba(126, 93, 255, 0.1),
+      transparent 30%
+    );
+
+  mix-blend-mode: screen;
+}
+
+@keyframes hero-wave-intro {
+  0% {
+    opacity: 0;
+    transform:
+      rotate(0deg)
+      translate3d(0, 32px, 0)
+      scale(0.96);
+  }
+
+  22% {
+    opacity: 1;
+  }
+
+  38% {
+    transform:
+      rotate(-7deg)
+      translate3d(-2px, 1px, 0)
+      scale(1.015);
+  }
+
+  54% {
+    transform:
+      rotate(7deg)
+      translate3d(2px, 0, 0)
+      scale(1.015);
+  }
+
+  70% {
+    transform:
+      rotate(-5deg)
+      translate3d(-1px, 0, 0)
+      scale(1.01);
+  }
+
+  84% {
+    transform:
+      rotate(4deg)
+      translate3d(1px, 0, 0)
+      scale(1.005);
+  }
+
+  100% {
+    opacity: 0;
+    transform:
+      rotate(0deg)
+      translate3d(0, 40px, 0)
+      scale(0.98);
+  }
+}
+
+@keyframes hero-typing-hand {
+  0%,
+  100% {
+    transform: translate3d(
+      0,
+      0,
+      0
+    );
+  }
+
+  50% {
+    transform: translate3d(
+      0,
+      1.4px,
+      0
+    );
+  }
+}
+
+@keyframes hero-cat-breathe {
+  0%,
+  100% {
+    transform:
+      translate3d(0, 0, 0)
+      scaleY(1);
+  }
+
+  50% {
+    transform:
+      translate3d(0, 0.45px, 0)
+      scaleY(1.018);
+  }
+}
+
+@media (max-width: 1100px) {
+  .scene {
+    width: 62vw;
+  }
+}
+
+@media (max-width: 900px) {
+  .scene {
+    width: 100%;
+    max-width: 760px;
+  }
+}
