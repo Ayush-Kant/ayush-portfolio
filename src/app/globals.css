@@ -25,7 +25,6 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-
 /* =========================================================
    PORTFOLIO SPACE BACKGROUND
    ========================================================= */
@@ -39,14 +38,10 @@ body {
 .starfield-layer {
   position: fixed;
   inset: 0;
-
   z-index: 0;
-
   width: 100%;
   height: 100%;
-
   overflow: hidden;
-
   pointer-events: none;
 
   background:
@@ -71,7 +66,6 @@ body {
 
 .starfield-layer::before {
   content: "";
-
   position: absolute;
   inset: 0;
 
@@ -86,18 +80,15 @@ body {
 
 .starfield-layer canvas {
   display: block;
-
   width: 100%;
   height: 100%;
 }
-
 
 .site-content {
   position: relative;
   z-index: 1;
   min-height: 100vh;
 }
-
 
 /* =========================================================
    BEE CURSOR
@@ -107,22 +98,18 @@ body {
   --bee-x: 50vw;
   --bee-y: 50vh;
   --bee-rotation: 0deg;
-  --wing-speed: 0.15s;
-  --flight-intensity: 0;
+  --wing-angle: -14deg;
+  --wing-angle-secondary: 14deg;
+  --wing-scale: 0.85;
 
   position: fixed;
-
   left: 0;
   top: 0;
 
-  /*
-   * Much smaller than the previous version.
-   */
-  width: 26px;
-  height: 22px;
+  width: 44px;
+  height: 34px;
 
   z-index: 9999;
-
   pointer-events: none;
 
   transform:
@@ -134,196 +121,108 @@ body {
     rotate(var(--bee-rotation));
 
   transform-origin: center center;
-
   will-change: transform;
 
-  /*
-   * Very soft shadow so it remains visible
-   * against the starfield without looking like
-   * a heavy sticker.
-   */
   filter:
     drop-shadow(
-      0 2px 4px rgba(0, 0, 0, 0.35)
+      0 2px 5px rgba(0, 0, 0, 0.38)
     );
 }
 
 .bee-svg {
-  width: 26px;
-  height: 22px;
-
+  width: 44px;
+  height: 34px;
   display: block;
-
   overflow: visible;
 }
 
-/* =========================================================
-   WINGS
-   ========================================================= */
-
 .bee-wing {
   transform-box: fill-box;
-
-  transform-origin: center bottom;
-
-  animation:
-    bee-wing-flap
-    var(--wing-speed)
-    ease-in-out
-    infinite alternate;
-
   will-change: transform;
 }
 
 .bee-wing-front {
-  animation-delay: -0.04s;
+  transform-origin: 24% 80%;
+  transform:
+    rotate(var(--wing-angle-secondary))
+    scaleY(var(--wing-scale));
 }
 
-.bee-wing-back {
-  animation-delay: -0.08s;
+.bee-wing-rear {
+  transform-origin: 78% 82%;
+  transform:
+    rotate(var(--wing-angle))
+    scaleY(var(--wing-scale));
 }
-
-@keyframes bee-wing-flap {
-  0% {
-    transform:
-      rotate(-16deg)
-      scaleY(0.72);
-  }
-
-  50% {
-    transform:
-      rotate(4deg)
-      scaleY(1);
-  }
-
-  100% {
-    transform:
-      rotate(18deg)
-      scaleY(0.72);
-  }
-}
-
-/* =========================================================
-   BODY
-   ========================================================= */
 
 .bee-body {
   transform-box: fill-box;
-  transform-origin: center center;
+  transform-origin: 50% 55%;
+}
 
+.bee-flying .bee-body {
   animation:
-    bee-body-hover
-    0.42s
+    bee-flight-body
+    0.55s
     ease-in-out
-    infinite alternate;
+    infinite
+    alternate;
 }
 
-@keyframes bee-body-hover {
-  0% {
-    transform:
-      translateY(-0.35px)
-      rotate(-1deg);
-  }
-
-  100% {
-    transform:
-      translateY(0.35px)
-      rotate(1deg);
-  }
-}
-
-/* =========================================================
-   FLYING
-   ========================================================= */
-
-.bee-flying .bee-svg {
-  filter:
-    drop-shadow(
-      0 2px 5px rgba(247, 201, 72, 0.12)
-    );
-}
-
-/*
- * Tiny bob during flight.
- */
-.bee-flying {
-  animation:
-    bee-flight-bob
-    0.75s
-    ease-in-out
-    infinite alternate;
-}
-
-@keyframes bee-flight-bob {
+@keyframes bee-flight-body {
   from {
-    margin-top: -0.5px;
+    transform: translateY(-0.6px) rotate(-1deg);
   }
 
   to {
-    margin-top: 0.8px;
+    transform: translateY(0.6px) rotate(1deg);
   }
 }
 
-/* =========================================================
-   LANDING
-   ========================================================= */
-
-.bee-landed {
+.bee-landed .bee-wing-front,
+.bee-landed .bee-wing-rear {
   animation:
-    bee-land
-    420ms
-    cubic-bezier(0.2, 0.9, 0.3, 1.2);
-}
-
-.bee-landed .bee-svg {
-  animation:
-    bee-rest
-    2.4s
+    bee-wings-rest
+    1.4s
     ease-in-out
     infinite;
 }
 
-@keyframes bee-land {
-  0% {
-    transform: translateY(-4px) scale(0.96);
-  }
-
-  45% {
-    transform: translateY(2px) scale(1.025);
-  }
-
-  70% {
-    transform: translateY(-0.8px) scale(0.99);
-  }
-
-  100% {
-    transform: translateY(0) scale(1);
-  }
+.bee-landed .bee-body {
+  animation:
+    bee-landed-breathe
+    2.6s
+    ease-in-out
+    infinite;
 }
 
-@keyframes bee-rest {
+@keyframes bee-wings-rest {
   0% {
-    transform:
-      rotate(-1deg)
-      translateY(0);
+    transform: rotate(-8deg) scaleY(0.85);
   }
 
   50% {
-    transform:
-      rotate(1deg)
-      translateY(0.45px);
+    transform: rotate(8deg) scaleY(0.97);
   }
 
   100% {
-    transform:
-      rotate(-1deg)
-      translateY(0);
+    transform: rotate(-8deg) scaleY(0.85);
   }
 }
 
-/* =========================================================
-   MOBILE / TOUCH
-   ========================================================= */
+@keyframes bee-landed-breathe {
+  0% {
+    transform: translateY(0) rotate(-0.7deg);
+  }
+
+  50% {
+    transform: translateY(0.7px) rotate(0.7deg);
+  }
+
+  100% {
+    transform: translateY(0) rotate(-0.7deg);
+  }
+}
 
 @media (pointer: coarse) {
   .bee-cursor {
