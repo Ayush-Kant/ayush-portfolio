@@ -24,3 +24,315 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+
+/* =========================================================
+   PORTFOLIO SPACE BACKGROUND
+   ========================================================= */
+
+html,
+body {
+  min-height: 100%;
+  background: #050507;
+}
+
+.starfield-layer {
+  position: fixed;
+  inset: 0;
+
+  z-index: 0;
+
+  width: 100%;
+  height: 100%;
+
+  overflow: hidden;
+
+  pointer-events: none;
+
+  background:
+    radial-gradient(
+      circle at 50% 42%,
+      rgba(107, 78, 255, 0.075) 0%,
+      rgba(107, 78, 255, 0.025) 24%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 18% 20%,
+      rgba(255, 255, 255, 0.018) 0%,
+      transparent 32%
+    ),
+    radial-gradient(
+      circle at 82% 72%,
+      rgba(150, 120, 255, 0.025) 0%,
+      transparent 34%
+    ),
+    #050507;
+}
+
+.starfield-layer::before {
+  content: "";
+
+  position: absolute;
+  inset: 0;
+
+  background:
+    radial-gradient(
+      circle at center,
+      transparent 20%,
+      rgba(0, 0, 0, 0.05) 56%,
+      rgba(0, 0, 0, 0.3) 100%
+    );
+}
+
+.starfield-layer canvas {
+  display: block;
+
+  width: 100%;
+  height: 100%;
+}
+
+
+.site-content {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+}
+
+
+/* =========================================================
+   BEE CURSOR
+   ========================================================= */
+
+.bee-cursor {
+  --bee-x: 50vw;
+  --bee-y: 50vh;
+  --bee-rotation: 0deg;
+  --wing-speed: 0.15s;
+  --flight-intensity: 0;
+
+  position: fixed;
+
+  left: 0;
+  top: 0;
+
+  /*
+   * Much smaller than the previous version.
+   */
+  width: 26px;
+  height: 22px;
+
+  z-index: 9999;
+
+  pointer-events: none;
+
+  transform:
+    translate3d(
+      calc(var(--bee-x) - 50%),
+      calc(var(--bee-y) - 50%),
+      0
+    )
+    rotate(var(--bee-rotation));
+
+  transform-origin: center center;
+
+  will-change: transform;
+
+  /*
+   * Very soft shadow so it remains visible
+   * against the starfield without looking like
+   * a heavy sticker.
+   */
+  filter:
+    drop-shadow(
+      0 2px 4px rgba(0, 0, 0, 0.35)
+    );
+}
+
+.bee-svg {
+  width: 26px;
+  height: 22px;
+
+  display: block;
+
+  overflow: visible;
+}
+
+/* =========================================================
+   WINGS
+   ========================================================= */
+
+.bee-wing {
+  transform-box: fill-box;
+
+  transform-origin: center bottom;
+
+  animation:
+    bee-wing-flap
+    var(--wing-speed)
+    ease-in-out
+    infinite alternate;
+
+  will-change: transform;
+}
+
+.bee-wing-front {
+  animation-delay: -0.04s;
+}
+
+.bee-wing-back {
+  animation-delay: -0.08s;
+}
+
+@keyframes bee-wing-flap {
+  0% {
+    transform:
+      rotate(-16deg)
+      scaleY(0.72);
+  }
+
+  50% {
+    transform:
+      rotate(4deg)
+      scaleY(1);
+  }
+
+  100% {
+    transform:
+      rotate(18deg)
+      scaleY(0.72);
+  }
+}
+
+/* =========================================================
+   BODY
+   ========================================================= */
+
+.bee-body {
+  transform-box: fill-box;
+  transform-origin: center center;
+
+  animation:
+    bee-body-hover
+    0.42s
+    ease-in-out
+    infinite alternate;
+}
+
+@keyframes bee-body-hover {
+  0% {
+    transform:
+      translateY(-0.35px)
+      rotate(-1deg);
+  }
+
+  100% {
+    transform:
+      translateY(0.35px)
+      rotate(1deg);
+  }
+}
+
+/* =========================================================
+   FLYING
+   ========================================================= */
+
+.bee-flying .bee-svg {
+  filter:
+    drop-shadow(
+      0 2px 5px rgba(247, 201, 72, 0.12)
+    );
+}
+
+/*
+ * Tiny bob during flight.
+ */
+.bee-flying {
+  animation:
+    bee-flight-bob
+    0.75s
+    ease-in-out
+    infinite alternate;
+}
+
+@keyframes bee-flight-bob {
+  from {
+    margin-top: -0.5px;
+  }
+
+  to {
+    margin-top: 0.8px;
+  }
+}
+
+/* =========================================================
+   LANDING
+   ========================================================= */
+
+.bee-landed {
+  animation:
+    bee-land
+    420ms
+    cubic-bezier(0.2, 0.9, 0.3, 1.2);
+}
+
+.bee-landed .bee-svg {
+  animation:
+    bee-rest
+    2.4s
+    ease-in-out
+    infinite;
+}
+
+@keyframes bee-land {
+  0% {
+    transform: translateY(-4px) scale(0.96);
+  }
+
+  45% {
+    transform: translateY(2px) scale(1.025);
+  }
+
+  70% {
+    transform: translateY(-0.8px) scale(0.99);
+  }
+
+  100% {
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes bee-rest {
+  0% {
+    transform:
+      rotate(-1deg)
+      translateY(0);
+  }
+
+  50% {
+    transform:
+      rotate(1deg)
+      translateY(0.45px);
+  }
+
+  100% {
+    transform:
+      rotate(-1deg)
+      translateY(0);
+  }
+}
+
+/* =========================================================
+   MOBILE / TOUCH
+   ========================================================= */
+
+@media (pointer: coarse) {
+  .bee-cursor {
+    display: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bee-cursor {
+    display: none !important;
+  }
+}
