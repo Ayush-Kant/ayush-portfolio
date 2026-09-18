@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 
 import Starfield from "@/components/background/Starfield";
-import BeeCursor from "@/components/cursor/BeeCursor";
 
 import "./globals.css";
 
@@ -20,8 +19,6 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <Starfield />
-
-        <BeeCursor />
 
         <div className="site-content">
           {children}
