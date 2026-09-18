@@ -126,10 +126,15 @@ export default function HeroAnimation() {
       return;
     }
 
-    setPhase("idle");
+    const intro =
+      introRef.current;
 
     const idle =
       idleRef.current;
+
+    intro?.pause();
+
+    setPhase("idle");
 
     idle?.play().catch(() => {
       setPhase("fallback");
@@ -139,6 +144,15 @@ export default function HeroAnimation() {
     introFinished,
     reducedMotion,
   ]);
+
+  useEffect(() => {
+    if (phase !== "fallback") {
+      return;
+    }
+
+    introRef.current?.pause();
+    idleRef.current?.pause();
+  }, [phase]);
 
   useEffect(() => {
     if (
