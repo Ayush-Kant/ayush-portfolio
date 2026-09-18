@@ -1,0 +1,196 @@
+.section {
+  padding:
+    120px
+    clamp(22px, 5vw, 76px);
+
+  border-top:
+    1px solid
+    rgba(192, 166, 255, 0.08);
+}
+
+.shell {
+  width: min(1280px, 100%);
+  margin: 0 auto;
+
+  display: grid;
+  grid-template-columns:
+    minmax(260px, 0.7fr)
+    minmax(0, 1.3fr);
+
+  gap: clamp(40px, 7vw, 100px);
+  align-items: start;
+}
+
+.heading {
+  position: sticky;
+  top: 116px;
+}
+
+.kicker,
+.label {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-weight: 700;
+  font-size: 0.68rem;
+}
+
+.kicker {
+  display: flex;
+  gap: 8px;
+  color: rgba(181, 150, 255, 0.82);
+}
+
+.kicker span {
+  color: #f6cf67;
+}
+
+.title {
+  margin: 14px 0 0;
+
+  color: rgba(248, 245, 252, 0.96);
+
+  font-size:
+    clamp(
+      3rem,
+      5vw,
+      5rem
+    );
+
+  line-height: 0.95;
+  letter-spacing: -0.055em;
+}
+
+.intro {
+  max-width: 390px;
+  margin: 20px 0 0;
+
+  color: rgba(217, 210, 232, 0.58);
+
+  font-size: 0.96rem;
+  line-height: 1.7;
+}
+
+.groups {
+  display: grid;
+  gap: 20px;
+}
+
+.group {
+  padding: 22px;
+
+  border:
+    1px solid
+    rgba(192, 166, 255, 0.12);
+
+  border-radius: 20px;
+
+  background:
+    rgba(13, 11, 22, 0.36);
+
+  backdrop-filter: blur(12px);
+}
+
+.label {
+  margin-bottom: 14px;
+  color: rgba(237, 230, 248, 0.52);
+}
+
+.list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  min-height: 35px;
+  padding: 7px 11px;
+
+  border:
+    1px solid
+    rgba(198, 174, 255, 0.15);
+
+  border-radius: 11px;
+
+  background:
+    rgba(8, 7, 13, 0.34);
+
+  color: rgba(244, 239, 252, 0.82);
+
+  font-size: 0.76rem;
+
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease,
+    background 160ms ease;
+}
+
+.chip:hover {
+  transform: translateY(-2px);
+
+  border-color:
+    rgba(190, 159, 255, 0.4);
+
+  background:
+    rgba(35, 27, 56, 0.45);
+}
+
+.dot {
+  width: 5px;
+  height: 5px;
+  flex: 0 0 auto;
+
+  border-radius: 50%;
+  background: #ad91ff;
+
+  box-shadow:
+    0
+    0
+    8px
+    rgba(173, 145, 255, 0.4);
+}
+
+@media (max-width: 860px) {
+  .section {
+    padding-block: 88px;
+  }
+
+  .shell {
+    grid-template-columns: 1fr;
+    gap: 42px;
+  }
+
+  .heading {
+    position: static;
+  }
+}
+
+@media (max-width: 560px) {
+  .section {
+    padding:
+      72px
+      18px
+      96px;
+  }
+
+  .group {
+    padding: 18px;
+  }
+
+  .title {
+    font-size:
+      clamp(
+        2.7rem,
+        13vw,
+        4.1rem
+      );
+  }
+
+  .chip {
+    font-size: 0.7rem;
+  }
+}

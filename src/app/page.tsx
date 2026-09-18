@@ -1,5 +1,6 @@
 import Header from "@/components/header/Header";
 import HeroSection from "@/components/hero/HeroSection";
+import SkillsSection from "@/components/skills/SkillsSection";
 
 export default function Home() {
   return (
@@ -8,6 +9,7 @@ export default function Home() {
 
       <main>
         <HeroSection />
+        <SkillsSection />
 
         <section
           id="projects"
