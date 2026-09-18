@@ -30,10 +30,10 @@
     brightness(0.92);
 
   transform:
-    scale(1.045);
+    scale(0.9);
 
   transform-origin:
-    78%
+    100%
     52%;
 
   opacity: 0.98;
@@ -135,10 +135,10 @@
 
   .image {
     transform:
-      scale(1.02);
+      scale(0.88);
 
     transform-origin:
-      82%
+      100%
       52%;
   }
 }
@@ -160,7 +160,7 @@
       center center;
 
     transform:
-      scale(1.01);
+      scale(0.95);
 
     -webkit-mask-image:
       linear-gradient(
