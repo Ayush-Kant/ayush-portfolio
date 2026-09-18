@@ -41,11 +41,11 @@
   transition: opacity 260ms ease;
 }
 
-.scene[data-phase="intro"][data-intro-ready="true"] .intro {
+.media[data-phase="intro"][data-intro-ready="true"] .intro {
   opacity: 1;
 }
 
-.scene[data-phase="idle"][data-idle-ready="true"] .idle {
+.media[data-phase="idle"][data-idle-ready="true"] .idle {
   opacity: 1;
 }
 
