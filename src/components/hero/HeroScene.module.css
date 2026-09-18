@@ -1,13 +1,20 @@
 .scene {
   position: relative;
 
-  width: 100%;
-  height: min(
-    76svh,
-    780px
+  width: min(
+    92%,
+    760px
   );
 
-  min-height: 540px;
+  aspect-ratio:
+    1024 /
+    710;
+
+  height: auto;
+
+  min-height: 0;
+
+  margin-left: auto;
 
   overflow: visible;
 
@@ -30,11 +37,11 @@
     brightness(0.92);
 
   transform:
-    scale(0.9);
+    scale(0.96);
 
   transform-origin:
     100%
-    52%;
+    50%;
 
   opacity: 0.98;
 
@@ -125,21 +132,15 @@
 
 @media (max-width: 1180px) {
   .scene {
-    height: min(
-      70svh,
-      700px
+    width: min(
+      94%,
+      690px
     );
-
-    min-height: 500px;
   }
 
   .image {
     transform:
-      scale(0.88);
-
-    transform-origin:
-      100%
-      52%;
+      scale(0.94);
   }
 }
 
@@ -147,12 +148,15 @@
   .scene {
     width: 100%;
 
-    height: min(
-      68svh,
-      620px
-    );
+    aspect-ratio:
+      1024 /
+      710;
 
-    min-height: 400px;
+    height: auto;
+
+    min-height: 0;
+
+    margin-inline: auto;
   }
 
   .image {
@@ -196,14 +200,12 @@
 
 @media (max-width: 560px) {
   .scene {
-    height: 430px;
-
-    min-height: 0;
+    width: 100%;
   }
 
   .image {
     transform:
-      scale(1.015);
+      scale(1);
   }
 }
 
