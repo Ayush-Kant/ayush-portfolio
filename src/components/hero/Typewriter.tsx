@@ -12,48 +12,78 @@ type TypewriterProps = {
 export default function Typewriter({
   text,
   className,
-  startDelayMs = HERO_CONFIG.typewriter.initialDelayMs,
+  startDelayMs =
+    HERO_CONFIG.typewriter
+      .initialDelayMs,
 }: TypewriterProps) {
   const [visibleCharacters, setVisibleCharacters] =
     useState(0);
 
   useEffect(() => {
-    let timeoutId: ReturnType<typeof setTimeout> | undefined;
+    let timeoutId:
+      | ReturnType<typeof setTimeout>
+      | undefined;
+
     let intervalId:
       | ReturnType<typeof setInterval>
       | undefined;
 
     timeoutId = setTimeout(() => {
       intervalId = setInterval(() => {
-        setVisibleCharacters((current) => {
-          if (current >= text.length) {
-            if (intervalId) {
-              clearInterval(intervalId);
-            }
-            return current;
-          }
+        setVisibleCharacters(
+          (current) => {
+            const next =
+              current + 1;
 
-          return current + 1;
-        });
+            if (
+              next >= text.length
+            ) {
+              if (intervalId) {
+                clearInterval(
+                  intervalId
+                );
+              }
+
+              return text.length;
+            }
+
+            return next;
+          }
+        );
       }, HERO_CONFIG.typewriter.characterDelayMs);
     }, startDelayMs);
 
     return () => {
-      if (timeoutId) clearTimeout(timeoutId);
-      if (intervalId) clearInterval(intervalId);
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
     };
   }, [startDelayMs, text]);
 
   return (
-    <span
-      className={className}
-      aria-hidden="true"
-    >
-      {text.slice(0, visibleCharacters)}
+    <>
       <span
-        className="hero-caret"
+        className={className}
         aria-hidden="true"
-      />
-    </span>
+      >
+        {text.slice(
+          0,
+          visibleCharacters
+        )}
+
+        <span
+          className="hero-caret"
+          aria-hidden="true"
+        />
+      </span>
+
+      <span className="sr-only">
+        {text}
+      </span>
+    </>
   );
 }
