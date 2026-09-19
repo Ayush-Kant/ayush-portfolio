@@ -12,24 +12,36 @@ const SkillBox = forwardRef<
   HTMLButtonElement,
   SkillBoxProps
 >(function SkillBox(
-  { isDragging },
+  {
+    isDragging,
+  },
   ref
 ) {
   return (
     <button
       ref={ref}
       type="button"
-      className={styles.skillBox}
-      data-dragging={
-        isDragging ? "true" : "false"
+      className={
+        styles.skillBox
       }
-      aria-label="JavaScript skill box. Double-click and hold to move it."
+      data-dragging={
+        isDragging
+          ? "true"
+          : "false"
+      }
+      aria-label={
+        "JavaScript skill box. " +
+        "Double-click and hold " +
+        "to pick it up."
+      }
     >
       <span
-        className={styles.jsMark}
+        className={
+          styles.jsIcon
+        }
         aria-hidden="true"
       >
-        JS
+        <span>JS</span>
       </span>
     </button>
   );
