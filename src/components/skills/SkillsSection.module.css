@@ -60,8 +60,6 @@
   align-items: center;
 }
 
-.trayWrap
-}
 
 .trayWrap {
   min-width: 0;
@@ -140,8 +138,6 @@
   user-select: none;
 }
 
-.trayGrid
-}
 
 .trayGrid {
   position: absolute;
@@ -223,18 +219,10 @@
     box-shadow 140ms ease;
 }
 
-.skillBox::before
-}
-
-
-}
-
 .skillBox:hover {
   filter: brightness(1.035);
 }
 
-.skillBox[data-dragging
-}
 
 .skillBox[data-dragging="true"] {
   cursor: grabbing;
@@ -260,8 +248,6 @@
   user-select: none;
 }
 
-.detailPanel
-}
 
 .detailPanel {
   position: relative;
