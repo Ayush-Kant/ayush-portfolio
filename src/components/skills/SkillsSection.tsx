@@ -9,7 +9,7 @@ export default function SkillsSection() {
       className={styles.section}
       aria-labelledby="skills-title"
     >
-      <div className={styles.shell}>
+      <div className={styles.sectionInner}>
         <header className={styles.heading}>
           <p className={styles.kicker}>
             <span aria-hidden="true">✦</span>
@@ -20,16 +20,15 @@ export default function SkillsSection() {
             id="skills-title"
             className={styles.title}
           >
-            Start with
+            Pick it up.
             <br />
-            one box.
+            See what I built.
           </h2>
 
           <p className={styles.intro}>
-            Double-click and hold the JavaScript box,
-            move it around the tray, then release it.
-            It should fall, bounce once, and settle
-            naturally.
+            Press and hold the skill box to move it
+            around the tray. Double-click it to summon
+            the story behind the tool.
           </p>
         </header>
 
