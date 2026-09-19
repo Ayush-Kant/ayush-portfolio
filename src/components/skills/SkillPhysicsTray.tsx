@@ -6,7 +6,10 @@ import {
 } from "react";
 
 import styles from "./SkillsSection.module.css";
-import { JAVASCRIPT_SKILL } from "./skills.data";
+import {
+  JAVASCRIPT_SKILL,
+  TYPESCRIPT_SKILL,
+} from "./skills.data";
 import SkillBox from "./SkillBox";
 import {
   useSingleBoxPhysics,
@@ -18,221 +21,198 @@ type InteractionState =
 
 export default function SkillPhysicsTray() {
   const trayRef =
-    useRef<HTMLDivElement | null>(
+    useRef<HTMLDivElement | null>(null);
+
+  const jsBoxRef =
+    useRef<HTMLButtonElement | null>(null);
+
+  const tsBoxRef =
+    useRef<HTMLButtonElement | null>(null);
+
+  const [jsInteraction, setJsInteraction] =
+    useState<InteractionState>("ready");
+
+  const [tsInteraction, setTsInteraction] =
+    useState<InteractionState>("ready");
+
+  const [activeSkill, setActiveSkill] =
+    useState<
+      typeof JAVASCRIPT_SKILL |
+      typeof TYPESCRIPT_SKILL |
       null
-    );
-
-  const boxRef =
-    useRef<HTMLButtonElement | null>(
-      null
-    );
-
-  const [interaction, setInteraction] =
-    useState<InteractionState>(
-      "ready"
-    );
-
-  const [detailsVisible, setDetailsVisible] =
-    useState(false);
+    >(null);
 
   useSingleBoxPhysics({
     trayRef,
-    boxRef,
-    onStateChange:
-      setInteraction,
+    boxRef: jsBoxRef,
+    initialXPercent: 0.18,
+    onStateChange: setJsInteraction,
   });
 
+  useSingleBoxPhysics({
+    trayRef,
+    boxRef: tsBoxRef,
+    initialXPercent: 0.46,
+    onStateChange: setTsInteraction,
+  });
+
+  const draggingSkill =
+    jsInteraction === "dragging"
+      ? JAVASCRIPT_SKILL.name
+      : tsInteraction === "dragging"
+        ? TYPESCRIPT_SKILL.name
+        : null;
+
   return (
-    <div
-      className={
-        styles.skillsPlayground
-      }
-    >
-      <div
-        className={
-          styles.playgroundGrid
-        }
-      >
-        <div
-          className={
-            styles.trayWrap
-          }
-        >
-          <div
-            className={
-              styles.trayHeader
-            }
-          >
+    <div className={styles.skillsPlayground}>
+      <div className={styles.playgroundGrid}>
+        <div className={styles.trayWrap}>
+          <div className={styles.trayHeader}>
             <div>
-              <p
-                className={
-                  styles.trayTitle
-                }
-              >
-                {JAVASCRIPT_SKILL.name}
+              <p className={styles.trayTitle}>
+                JavaScript + TypeScript
               </p>
 
-              <p
-                className={
-                  styles.trayHint
-                }
-              >
+              <p className={styles.trayHint}>
                 Press + hold to move
               </p>
             </div>
 
             <span
-              className={
-                styles.trayStatus
-              }
+              className={styles.trayStatus}
               data-state={
-                interaction
+                draggingSkill
+                  ? "dragging"
+                  : "ready"
               }
             >
-              {interaction ===
-              "dragging"
-                ? "HELD"
+              {draggingSkill
+                ? `${draggingSkill} HELD`
                 : "READY"}
             </span>
           </div>
 
           <div
             ref={trayRef}
-            className={
-              styles.tray
-            }
+            className={styles.tray}
           >
             <div
-              className={
-                styles.trayGrid
-              }
+              className={styles.trayGrid}
               aria-hidden="true"
             />
 
             <div
-              className={
-                styles.trayGlow
-              }
+              className={styles.trayGlow}
               aria-hidden="true"
             />
 
             <div
-              className={
-                styles.trayWall
-              }
+              className={styles.trayWall}
               aria-hidden="true"
             />
 
             <div
-              className={
-                styles.trayInstruction
-              }
+              className={styles.trayInstruction}
               aria-hidden="true"
             >
-              hold
-              {" · "}
-              move
-              {" · "}
-              release
+              hold · move · release
             </div>
 
             <SkillBox
-              ref={boxRef}
+              ref={jsBoxRef}
+              skill="javascript"
               isDragging={
-                interaction ===
-                "dragging"
+                jsInteraction === "dragging"
               }
               onDoubleClick={() =>
-                setDetailsVisible(
-                  true
+                setActiveSkill(
+                  JAVASCRIPT_SKILL
+                )
+              }
+            />
+
+            <SkillBox
+              ref={tsBoxRef}
+              skill="typescript"
+              isDragging={
+                tsInteraction === "dragging"
+              }
+              onDoubleClick={() =>
+                setActiveSkill(
+                  TYPESCRIPT_SKILL
                 )
               }
             />
 
             <div
-              className={
-                styles.trayFloor
-              }
+              className={styles.trayFloor}
               aria-hidden="true"
             />
           </div>
         </div>
 
         <aside
-          className={
-            styles.detailPanel
-          }
+          className={styles.detailPanel}
           data-visible={
-            detailsVisible
+            activeSkill
               ? "true"
               : "false"
           }
+          style={{
+            ["--skill-accent" as string]:
+              activeSkill?.color ??
+              "#b994ff",
+          }}
           aria-live="polite"
         >
           <div
-            className={
-              styles.detailSummon
-            }
+            className={styles.detailSummon}
             aria-hidden="true"
-          >
-            <span />
-          </div>
+          />
 
           <div
-            className={
-              styles.detailPanelInner
-            }
+            className={styles.detailPanelInner}
           >
             <p
-              className={
-                styles.detailEyebrow
-              }
+              className={styles.detailEyebrow}
             >
-              {detailsVisible
-                ? JAVASCRIPT_SKILL.detail.eyebrow
+              {activeSkill
+                ? activeSkill.detail.eyebrow
                 : "Skill unlocked"}
             </p>
 
             <h3
-              className={
-                styles.detailTitle
-              }
+              className={styles.detailTitle}
             >
-              {detailsVisible
-                ? JAVASCRIPT_SKILL.detail.title
-                : "Double-click the box"}
+              {activeSkill
+                ? activeSkill.detail.title
+                : "Double-click a box"}
             </h3>
 
             <p
-              className={
-                styles.detailSummary
-              }
+              className={styles.detailSummary}
             >
-              {detailsVisible
-                ? JAVASCRIPT_SKILL.detail.summary
-                : "I'll show you what I have built and worked with using this skill."}
+              {activeSkill
+                ? activeSkill.detail.summary
+                : "Double-click JavaScript or TypeScript to reveal how I use it."}
             </p>
 
             <div
-              className={
-                styles.detailList
-              }
+              className={styles.detailList}
             >
               {(
-                detailsVisible
-                  ? JAVASCRIPT_SKILL.detail.highlights
+                activeSkill
+                  ? activeSkill.detail.highlights
                   : [
-                      "A closer look at my work",
-                      "The tools I pair it with",
-                      "Where it fits in my stack",
+                      "JavaScript and TypeScript",
+                      "Press + hold to move",
+                      "Release to drop",
                     ]
               ).map(
                 (item) => (
                   <span
                     key={item}
-                    className={
-                      styles.detailItem
-                    }
+                    className={styles.detailItem}
                   >
                     {item}
                   </span>
@@ -240,35 +220,16 @@ export default function SkillPhysicsTray() {
               )}
             </div>
 
-            {detailsVisible && (
-              <span
-                className={
-                  styles.detailClose
-                }
+            {activeSkill && (
+              <button
+                type="button"
+                className={styles.detailClose}
                 onClick={() =>
-                  setDetailsVisible(
-                    false
-                  )
+                  setActiveSkill(null)
                 }
-                role="button"
-                tabIndex={0}
-                onKeyDown={(
-                  event
-                ) => {
-                  if (
-                    event.key ===
-                      "Enter" ||
-                    event.key ===
-                      " "
-                  ) {
-                    setDetailsVisible(
-                      false
-                    );
-                  }
-                }}
               >
-                Double-click again to replay
-              </span>
+                Close details
+              </button>
             )}
           </div>
         </aside>
