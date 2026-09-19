@@ -1,21 +1,21 @@
 .scene {
   position: relative;
 
-  width: 100%;
-  height: 100%;
+  width:
+    100%;
 
-  min-height: 0;
+  height:
+    100%;
+
+  margin:
+    0;
+
+  min-height:
+    0;
 
   overflow: visible;
 
   isolation: isolate;
-}
-
-.scene picture {
-  position: absolute;
-  inset: 0;
-
-  display: block;
 }
 
 .image {
@@ -27,8 +27,12 @@
 
   object-fit: cover;
 
+  /*
+   * Keep the subject weighted to the far-right side while
+   * preserving enough room for the desk scene.
+   */
   object-position:
-    82%
+    78%
     50%;
 
   filter:
@@ -45,6 +49,11 @@
 
   opacity: 0.98;
 
+  /*
+   * Fade a broad section of the left edge. This is what lets
+   * the warm/cool artwork visually become part of the same
+   * night-sky background instead of reading as a separate box.
+   */
   -webkit-mask-image:
     linear-gradient(
       90deg,
@@ -68,23 +77,18 @@
     );
 }
 
-.edgeBlend,
-.bottomBlend,
-.atmosphere {
-  position: absolute;
-  inset: 0;
-
-  pointer-events: none;
-}
-
 .edgeBlend {
-  z-index: 2;
+  position: absolute;
 
   inset:
     -1px
     -7vw
     -1px
     -2px;
+
+  z-index: 2;
+
+  pointer-events: none;
 
   background:
     linear-gradient(
@@ -99,7 +103,13 @@
 }
 
 .bottomBlend {
+  position: absolute;
+
+  inset: 0;
+
   z-index: 3;
+
+  pointer-events: none;
 
   background:
     linear-gradient(
@@ -113,11 +123,15 @@
 }
 
 .atmosphere {
-  z-index: 4;
+  position: absolute;
 
   inset:
     -6%
     -4%;
+
+  z-index: 4;
+
+  pointer-events: none;
 
   background:
     radial-gradient(
@@ -136,58 +150,78 @@
       transparent 44%
     );
 
-  mix-blend-mode: screen;
+  mix-blend-mode:
+    screen;
 }
 
 @media (max-width: 1200px) {
+  .scene {
+    width:
+      100%;
+
+    height:
+      100%;
+
+    min-height:
+      0;
+  }
+
   .image {
     object-position:
       84%
       50%;
+
+    transform:
+      scale(1.01);
   }
 }
 
 @media (max-width: 900px) {
   .scene {
-    width: 100%;
-    height: 100%;
-    min-height: 0;
-  }
+    width:
+      100%;
 
-  .scene picture {
-    inset: 0;
+    height:
+      auto;
+
+    min-height:
+      0;
+
+    aspect-ratio:
+      1024 /
+      710;
+
+    margin-inline:
+      auto;
   }
 
   .image {
+    object-fit:
+      cover;
+
     object-position:
-      68%
-      68%;
+      center
+      center;
 
     transform:
-      scale(1.02);
+      scale(1);
 
-    /*
-     * The portrait source is taller than the desktop scene.
-     * Covering the whole mobile row lets the artwork visually
-     * occupy the same height as the text without leaving a
-     * side or bottom gap.
-     */
     -webkit-mask-image:
       linear-gradient(
-        90deg,
+        180deg,
         transparent 0%,
-        rgba(0, 0, 0, 0.12) 12%,
-        #000 42%,
-        #000 100%
+        #000 16%,
+        #000 86%,
+        transparent 100%
       );
 
     mask-image:
       linear-gradient(
-        90deg,
+        180deg,
         transparent 0%,
-        rgba(0, 0, 0, 0.12) 12%,
-        #000 42%,
-        #000 100%
+        #000 16%,
+        #000 86%,
+        transparent 100%
       );
   }
 
@@ -196,20 +230,11 @@
 
     background:
       linear-gradient(
-        90deg,
-        #050507 0%,
-        rgba(5, 5, 7, 0.78) 18%,
-        rgba(5, 5, 7, 0.26) 38%,
-        transparent 56%
-      );
-  }
-
-  .bottomBlend {
-    background:
-      linear-gradient(
         180deg,
-        transparent 76%,
-        rgba(5, 5, 7, 0.42) 94%,
+        #050507 0%,
+        rgba(5, 5, 7, 0.28) 15%,
+        transparent 31%,
+        transparent 79%,
         #050507 100%
       );
   }
@@ -217,22 +242,14 @@
 
 @media (max-width: 560px) {
   .scene {
-    width: 100%;
-    height: 100%;
-  }
-
-  .image {
-    object-position:
-      66%
-      72%;
-
-    transform:
-      scale(1.015);
+    width:
+      100%;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .image {
-    transform: none;
+    transform:
+      none;
   }
 }

@@ -1003,19 +1003,6 @@ a {
   .hero-shell {
     min-height:
       auto;
-
-    display:
-      grid;
-
-    grid-template-columns:
-      minmax(0, 56%)
-      minmax(0, 44%);
-
-    align-items:
-      stretch;
-
-    gap:
-      0;
   }
 
   .hero-text-column {
@@ -1023,20 +1010,10 @@ a {
       100%;
 
     min-height:
-      clamp(
-        520px,
-        138vw,
-        700px
-      );
+      auto;
 
     display:
-      flex;
-
-    align-items:
-      center;
-
-    padding:
-      0;
+      block;
   }
 
   .hero-copy {
@@ -1044,18 +1021,18 @@ a {
       100%;
 
     max-width:
-      none;
+      760px;
   }
 
   .hero-title {
     max-width:
-      100%;
+      740px;
 
     font-size:
       clamp(
-        2.65rem,
-        11vw,
-        4.35rem
+        3.85rem,
+        12vw,
+        5.8rem
       );
   }
 
@@ -1073,21 +1050,15 @@ a {
       100%;
 
     height:
-      100%;
-
-    min-height:
-      inherit;
+      auto;
 
     justify-content:
-      flex-end;
-
-    align-self:
-      stretch;
+      center;
   }
 
   .hero-description {
     max-width:
-      100%;
+      680px;
   }
 
   .hero-scroll-cue {
@@ -1115,13 +1086,13 @@ a {
   .hero-title {
     font-size:
       clamp(
-        2.35rem,
-        10.8vw,
-        3.25rem
+        3.25rem,
+        16vw,
+        4.65rem
       );
 
     line-height:
-      0.9;
+      0.88;
   }
 
   .hero-role {
@@ -1137,10 +1108,7 @@ a {
       10px;
 
     font-size:
-      0.83rem;
-
-    line-height:
-      1.58;
+      0.91rem;
   }
 
   .hero-badges {
@@ -1150,33 +1118,30 @@ a {
 
   .hero-actions {
     margin-top:
-      19px;
-
-    gap:
-      8px;
+      21px;
   }
 
   .hero-button {
     min-height:
-      44px;
+      47px;
 
     padding-inline:
-      12px;
+      14px;
 
     font-size:
-      0.76rem;
+      0.81rem;
   }
 
   .hero-proof {
     margin-top:
-      18px;
+      22px;
 
     gap:
       0
-      11px;
+      13px;
 
     font-size:
-      0.48rem;
+      0.52rem;
   }
 }
 /* =========================================================

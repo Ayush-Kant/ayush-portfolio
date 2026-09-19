@@ -1,28 +1,25 @@
+import Image from "next/image";
+
+import styles from "./HeroScene.module.css";
+
 export default function HeroScene() {
   return (
     <div
-      className="hero-scene"
+      className={styles.scene}
       aria-hidden="true"
     >
-      <picture>
-        <source
-          media="(max-width: 900px)"
-          srcSet="/hero/hero-typing-mobile.webp"
-        />
+      <Image
+        className={styles.image}
+        src="/hero/hero-typing-scene.webp"
+        alt=""
+        fill
+        priority
+        sizes="(max-width: 900px) 100vw, 56vw"
+      />
 
-        <img
-          className="hero-scene-image"
-          src="/hero/hero-typing-scene.webp"
-          alt=""
-          fetchPriority="high"
-          loading="eager"
-          decoding="async"
-        />
-      </picture>
-
-      <div className="hero-scene-edge" />
-      <div className="hero-scene-bottom" />
-      <div className="hero-scene-atmosphere" />
+      <div className={styles.edgeBlend} />
+      <div className={styles.bottomBlend} />
+      <div className={styles.atmosphere} />
     </div>
   );
 }
