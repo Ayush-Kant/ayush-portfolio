@@ -377,13 +377,13 @@
 }
 
 @media (max-width: 900px) {
-  .skills-section {
+  .section {
     padding:
       88px
       22px;
   }
 
-  .skills-shell {
+  .shell {
     grid-template-columns: 1fr;
     gap: 30px;
   }
@@ -398,7 +398,7 @@
 }
 
 @media (max-width: 560px) {
-  .skills-section {
+  .section {
     padding:
       72px
       18px
