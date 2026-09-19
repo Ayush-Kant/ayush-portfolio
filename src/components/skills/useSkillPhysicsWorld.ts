@@ -551,7 +551,8 @@ export function useSkillPhysicsWorld({
             initialTraySize.height -
               body.height -
               entry.config.initialStackLevel *
-                body.height
+                body.height *
+                0.68
           );
 
         body.vx = 0;
