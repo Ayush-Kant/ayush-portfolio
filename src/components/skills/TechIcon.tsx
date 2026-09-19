@@ -1,7 +1,9 @@
 import type { SimpleIcon } from "simple-icons";
 
+import type { LocalTechIcon } from "./tech-icons.types";
+
 type TechIconProps = {
-  icon: SimpleIcon;
+  icon: SimpleIcon | LocalTechIcon;
   size?: number;
   label: string;
 };
@@ -11,6 +13,19 @@ export default function TechIcon({
   size = 24,
   label,
 }: TechIconProps) {
+  if ("kind" in icon) {
+    return (
+      <img
+        src={icon.src}
+        alt=""
+        width={size}
+        height={size}
+        draggable={false}
+        loading="eager"
+      />
+    );
+  }
+
   return (
     <svg
       aria-hidden="true"

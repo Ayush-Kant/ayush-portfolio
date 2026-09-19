@@ -1,10 +1,6 @@
-import type { SimpleIcon } from "simple-icons";
-
 import {
-  siAmazonwebservices,
-  siCss3,
+  siCss,
   siDocker,
-  siJava,
   siJavascript,
   siKubernetes,
   siLangchain,
@@ -23,15 +19,34 @@ import {
   siTypescript,
 } from "simple-icons";
 
+import type {
+  LocalTechIcon,
+  TechIconData,
+} from "./tech-icons.types";
+
+const JAVA_ICON: LocalTechIcon = {
+  kind: "image",
+  src: "/skills-icons/java.svg",
+  hex: "EA2D2E",
+  title: "Java",
+};
+
+const AWS_ICON: LocalTechIcon = {
+  kind: "image",
+  src: "/skills-icons/aws.svg",
+  hex: "FF9900",
+  title: "AWS",
+};
+
 export type SkillDefinition = {
   id: string;
   name: string;
   category: string;
-  icon: SimpleIcon;
+  icon: TechIconData;
 };
 
 export const SKILLS: SkillDefinition[] = [
-  { id: "java", name: "Java", category: "Languages", icon: siJava },
+  { id: "java", name: "Java", category: "Languages", icon: JAVA_ICON },
   { id: "python", name: "Python", category: "Languages", icon: siPython },
   {
     id: "javascript",
@@ -67,7 +82,7 @@ export const SKILLS: SkillDefinition[] = [
     id: "css",
     name: "CSS",
     category: "Frontend",
-    icon: siCss3,
+    icon: siCss,
   },
   {
     id: "nodejs",
@@ -109,7 +124,7 @@ export const SKILLS: SkillDefinition[] = [
     id: "aws",
     name: "AWS",
     category: "Cloud",
-    icon: siAmazonwebservices,
+    icon: AWS_ICON,
   },
   {
     id: "langchain",
