@@ -1,0 +1,16 @@
+export const PHYSICS = {
+  gravity: 0.9,
+  restitution: 0.16,
+  friction: 0.72,
+  frictionAir: 0.018,
+  density: 0.0022,
+  stiffness: 0.18,
+  damping: 0.16,
+  releaseVelocityScale: 0.92,
+  maxReleaseVelocity: 850,
+  maxAngularVelocity: 0.12,
+  cardWidth: 142,
+  cardHeight: 58,
+  wallThickness: 48,
+  floorGap: 26,
+} as const;
