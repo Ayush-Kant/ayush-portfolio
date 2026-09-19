@@ -1,5 +1,3 @@
-import type { SimpleIcon } from "simple-icons";
-
 import {
   siCss,
   siDocker,
@@ -21,7 +19,10 @@ import {
   siTypescript,
 } from "simple-icons";
 
-import type { LocalTechIcon } from "./tech-icons.types";
+import type {
+  LocalTechIcon,
+  TechIconData,
+} from "./tech-icons.types";
 
 const JAVA_ICON: LocalTechIcon = {
   kind: "image",
@@ -41,7 +42,7 @@ export type SkillDefinition = {
   id: string;
   name: string;
   category: string;
-  icon: SimpleIcon;
+  icon: TechIconData;
 };
 
 export const SKILLS: SkillDefinition[] = [
