@@ -25,6 +25,7 @@ export type SkillPhysicsBodyConfig = {
   boxRef:
     RefObject<HTMLButtonElement | null>;
   initialXPercent: number;
+  initialStackLevel: number;
   onStateChange: (
     state:
       | "ready"
@@ -548,7 +549,9 @@ export function useSkillPhysicsWorld({
           Math.max(
             0,
             initialTraySize.height -
-              body.height
+              body.height -
+              entry.config.initialStackLevel *
+                body.height
           );
 
         body.vx = 0;
