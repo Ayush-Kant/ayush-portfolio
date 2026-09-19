@@ -21,30 +21,25 @@ import {
 
 type InteractionState = "ready" | "dragging";
 
-const INITIAL_STACK_LAYOUT = [
-  { xPercent: 0.035, level: 0 },
-  { xPercent: 0.09, level: 1 },
-  { xPercent: 0.045, level: 2 },
-
-  { xPercent: 0.19, level: 0 },
-  { xPercent: 0.155, level: 1 },
-  { xPercent: 0.21, level: 2 },
-
-  { xPercent: 0.365, level: 0 },
-  { xPercent: 0.41, level: 1 },
-  { xPercent: 0.385, level: 2 },
-
-  { xPercent: 0.545, level: 0 },
-  { xPercent: 0.505, level: 1 },
-  { xPercent: 0.57, level: 2 },
-
-  { xPercent: 0.72, level: 0 },
-  { xPercent: 0.675, level: 1 },
-  { xPercent: 0.745, level: 2 },
-
-  { xPercent: 0.885, level: 0 },
-  { xPercent: 0.845, level: 1 },
-  { xPercent: 0.91, level: 2 },
+const INITIAL_RANDOM_LAYOUT = [
+  { xPercent: 0.055, yPercent: 0.69, angle: -0.18 },
+  { xPercent: 0.16, yPercent: 0.79, angle: 0.11 },
+  { xPercent: 0.08, yPercent: 0.86, angle: -0.34 },
+  { xPercent: 0.285, yPercent: 0.73, angle: 0.27 },
+  { xPercent: 0.37, yPercent: 0.84, angle: -0.13 },
+  { xPercent: 0.49, yPercent: 0.75, angle: 0.19 },
+  { xPercent: 0.59, yPercent: 0.86, angle: -0.29 },
+  { xPercent: 0.72, yPercent: 0.7, angle: 0.23 },
+  { xPercent: 0.84, yPercent: 0.82, angle: -0.16 },
+  { xPercent: 0.91, yPercent: 0.68, angle: 0.31 },
+  { xPercent: 0.22, yPercent: 0.88, angle: -0.24 },
+  { xPercent: 0.42, yPercent: 0.65, angle: 0.16 },
+  { xPercent: 0.68, yPercent: 0.79, angle: -0.37 },
+  { xPercent: 0.78, yPercent: 0.9, angle: 0.2 },
+  { xPercent: 0.12, yPercent: 0.63, angle: 0.29 },
+  { xPercent: 0.54, yPercent: 0.9, angle: -0.21 },
+  { xPercent: 0.33, yPercent: 0.91, angle: 0.33 },
+  { xPercent: 0.63, yPercent: 0.64, angle: -0.31 },
 ] as const;
 
 export default function SkillPhysicsTray() {
@@ -101,10 +96,13 @@ export default function SkillPhysicsTray() {
           id: skill.id,
           boxRef: boxRefObjects[skill.id],
           initialXPercent:
-            INITIAL_STACK_LAYOUT[index]?.xPercent ??
+            INITIAL_RANDOM_LAYOUT[index]?.xPercent ??
             0.5,
-          initialStackLevel:
-            INITIAL_STACK_LAYOUT[index]?.level ?? 0,
+          initialYPercent:
+            INITIAL_RANDOM_LAYOUT[index]?.yPercent ??
+            0.78,
+          initialAngle:
+            INITIAL_RANDOM_LAYOUT[index]?.angle ?? 0,
           onStateChange: (
             state: InteractionState
           ) => {
