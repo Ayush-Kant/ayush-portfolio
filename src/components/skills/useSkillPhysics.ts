@@ -1,5 +1,6 @@
 "use client";
 
+import type { PointerEvent as ReactPointerEvent, RefObject } from "react";
 import {
   useCallback,
   useEffect,
@@ -12,19 +13,10 @@ import {
   Composite,
   Constraint,
   Engine,
-  Events,
   Query,
-  type IEventCollision,
-  type IEventMouse,
 } from "matter-js";
 
 import { PHYSICS } from "./physics.config";
-import type { SkillDefinition } from "./skills.data";
-
-type Rect = {
-  width: number;
-  height: number;
-};
 
 type PointerSample = {
   x: number;
@@ -34,19 +26,17 @@ type PointerSample = {
 
 type SkillBody = {
   element: HTMLElement;
-  body: Body;
+  body: Body | null;
   width: number;
   height: number;
 };
 
 type UseSkillPhysicsArgs = {
-  stageRef: React.RefObject<HTMLDivElement | null>;
-  skills: SkillDefinition[];
+  stageRef: RefObject<HTMLDivElement | null>;
 };
 
 export function useSkillPhysics({
   stageRef,
-  skills,
 }: UseSkillPhysicsArgs) {
   const engineRef =
     useRef<Engine | null>(null);
@@ -56,12 +46,11 @@ export function useSkillPhysics({
       new Map()
     );
 
-  const wallRef =
+  const wallsRef =
     useRef<Body[]>([]);
 
   const dragRef =
     useRef<{
-      id: string;
       body: Body;
       anchor: Body;
       constraint: Constraint;
@@ -69,82 +58,60 @@ export function useSkillPhysics({
       history: PointerSample[];
     } | null>(null);
 
-  const rafRef =
-    useRef<number | null>(null);
-
-  const visibleRef =
-    useRef(true);
-
-  const pageVisibleRef =
-    useRef(true);
-
-  const readyRef =
-    useRef(false);
-
-  const initialStateRef =
-    useRef<
-      Map<
+  const initialRef =
+    useRef(
+      new Map<
         string,
         {
           x: number;
           y: number;
-          angle: number;
         }
-      >
-    >(new Map());
+      >()
+    );
+
+  const readyRef =
+    useRef(false);
+
+  const visibleRef =
+    useRef(false);
+
+  const pageVisibleRef =
+    useRef(
+      typeof document === "undefined" ||
+        document.visibilityState ===
+          "visible"
+    );
 
   const setCardRef =
     useCallback(
       (id: string) =>
         (node: HTMLButtonElement | null) => {
           if (!node) {
-            bodiesRef.current.delete(
-              id
-            );
+            bodiesRef.current.delete(id);
             return;
           }
 
           const existing =
             bodiesRef.current.get(id);
 
-          if (existing) {
-            existing.element =
-              node;
-          } else {
-            bodiesRef.current.set(
-              id,
-              {
-                element: node,
-                body: null as never,
-                width:
-                  PHYSICS.cardWidth,
-                height:
-                  PHYSICS.cardHeight,
-              }
-            );
-          }
+          bodiesRef.current.set(id, {
+            element: node,
+            body:
+              existing?.body ??
+              null,
+            width:
+              existing?.width ??
+              PHYSICS.cardWidth,
+            height:
+              existing?.height ??
+              PHYSICS.cardHeight,
+          });
         },
       []
     );
 
-  const renderBodies =
+  const getSize =
     useCallback(() => {
-      for (const item of bodiesRef.current.values()) {
-        item.element.style.transform =
-          "translate3d(" +
-          (item.body.position.x -
-            item.width / 2) +
-          "px, " +
-          (item.body.position.y -
-            item.height / 2) +
-          "px, 0) rotate(" +
-          item.body.angle +
-          "rad)";
-      }
-    }, []);
-
-  const stageSize =
-    useCallback((): Rect | null => {
       const stage =
         stageRef.current;
 
@@ -159,39 +126,58 @@ export function useSkillPhysics({
       };
     }, [stageRef]);
 
-  const buildWalls =
+  const render =
+    useCallback(() => {
+      bodiesRef.current.forEach(
+        (item) => {
+          if (!item.body) return;
+
+          const x =
+            item.body.position.x -
+            item.width / 2;
+
+          const y =
+            item.body.position.y -
+            item.height / 2;
+
+          item.element.style.transform =
+            `translate3d(${x}px, ${y}px, 0) rotate(${item.body.angle}rad)`;
+        }
+      );
+    }, []);
+
+  const createWalls =
     useCallback(() => {
       const engine =
         engineRef.current;
 
       const size =
-        stageSize();
+        getSize();
 
       if (!engine || !size) {
         return;
       }
 
-      if (
-        wallRef.current.length
-      ) {
-        Composite.remove(
-          engine.world,
-          wallRef.current
-        );
-      }
+      Composite.remove(
+        engine.world,
+        wallsRef.current
+      );
+
+      const thickness =
+        PHYSICS.wallThickness;
 
       const floorY =
         size.height -
         PHYSICS.floorGap;
 
-      wallRef.current = [
+      wallsRef.current = [
         Bodies.rectangle(
           size.width / 2,
           floorY +
-            PHYSICS.wallThickness / 2,
+            thickness / 2,
           size.width +
-            PHYSICS.wallThickness * 2,
-          PHYSICS.wallThickness,
+            thickness * 2,
+          thickness,
           {
             isStatic: true,
             friction:
@@ -201,97 +187,38 @@ export function useSkillPhysics({
           }
         ),
         Bodies.rectangle(
-          -PHYSICS.wallThickness / 2,
+          -thickness / 2,
           size.height / 2,
-          PHYSICS.wallThickness,
+          thickness,
           size.height,
-          {
-            isStatic: true,
-          }
+          { isStatic: true }
         ),
         Bodies.rectangle(
           size.width +
-            PHYSICS.wallThickness / 2,
+            thickness / 2,
           size.height / 2,
-          PHYSICS.wallThickness,
+          thickness,
           size.height,
-          {
-            isStatic: true,
-          }
+          { isStatic: true }
         ),
       ];
 
       Composite.add(
         engine.world,
-        wallRef.current
+        wallsRef.current
       );
-    }, [stageSize]);
+    }, [getSize]);
 
-  const clampBodies =
-    useCallback(() => {
-      const size =
-        stageSize();
-
-      if (!size) return;
-
-      const floorY =
-        size.height -
-        PHYSICS.floorGap;
-
-      for (const item of bodiesRef.current.values()) {
-        const halfWidth =
-          item.width / 2;
-        const halfHeight =
-          item.height / 2;
-
-        const x = Math.min(
-          Math.max(
-            item.body.position.x,
-            halfWidth + 4
-          ),
-          size.width -
-            halfWidth -
-            4
-        );
-
-        const y = Math.min(
-          Math.max(
-            item.body.position.y,
-            halfHeight + 4
-          ),
-          floorY -
-            halfHeight -
-            4
-        );
-
-        Body.setPosition(
-          item.body,
-          { x, y }
-        );
-      }
-    }, [stageSize]);
-
-  const installBodies =
+  const initialize =
     useCallback(() => {
       const engine =
         engineRef.current;
 
       const size =
-        stageSize();
+        getSize();
 
       if (!engine || !size) {
         return;
-      }
-
-      for (const item of bodiesRef.current.values()) {
-        if (
-          item.body
-        ) {
-          Composite.remove(
-            engine.world,
-            item.body
-          );
-        }
       }
 
       bodiesRef.current.forEach(
@@ -302,8 +229,7 @@ export function useSkillPhysics({
               Math.min(
                 178,
                 86 +
-                  item.element
-                    .textContent!
+                  item.element.textContent!
                     .trim()
                     .length *
                     6.2
@@ -332,28 +258,26 @@ export function useSkillPhysics({
 
           const x =
             Math.min(
-              92 +
+              82 +
                 column *
                   (width + 14),
               size.width -
-                width /
-                  2 -
+                width / 2 -
                 18
             );
 
           const y =
-            88 +
-            row *
-              (height + 16);
+            Math.min(
+              72 +
+                row *
+                  (height + 16),
+              size.height * 0.58
+            );
 
           const body =
             Bodies.rectangle(
               x,
-              Math.min(
-                y,
-                size.height *
-                  0.58
-              ),
+              y,
               width,
               height,
               {
@@ -375,14 +299,9 @@ export function useSkillPhysics({
           item.width = width;
           item.height = height;
 
-          initialStateRef.current.set(
-            item.element
-              .dataset.skillId!,
-            {
-              x,
-              y,
-              angle: 0,
-            }
+          initialRef.current.set(
+            item.element.dataset.skillId!,
+            { x, y }
           );
 
           Composite.add(
@@ -392,18 +311,16 @@ export function useSkillPhysics({
         }
       );
 
-      buildWalls();
+      createWalls();
       readyRef.current = true;
-      clampBodies();
-      renderBodies();
+      render();
     }, [
-      buildWalls,
-      clampBodies,
-      renderBodies,
-      stageSize,
+      createWalls,
+      getSize,
+      render,
     ]);
 
-  const releaseDrag =
+  const release =
     useCallback(() => {
       const drag =
         dragRef.current;
@@ -411,29 +328,37 @@ export function useSkillPhysics({
       const engine =
         engineRef.current;
 
-      if (
-        !drag ||
-        !engine
-      ) {
+      if (!drag || !engine) {
         return;
       }
 
-      const history =
+      const samples =
         drag.history;
 
       const first =
-        history[0];
+        samples[0];
 
       const last =
-        history[
-          history.length - 1
+        samples[
+          samples.length - 1
         ];
 
-      const dt = Math.max(
-        16,
-        last.time -
-          first.time
-      );
+      const dt =
+        Math.max(
+          16,
+          last.time -
+            first.time
+        );
+
+      const clamp =
+        (value: number) =>
+          Math.max(
+            -PHYSICS.maxReleaseVelocity,
+            Math.min(
+              PHYSICS.maxReleaseVelocity,
+              value
+            )
+          );
 
       const vx =
         ((last.x - first.x) /
@@ -447,16 +372,6 @@ export function useSkillPhysics({
         1000 *
         PHYSICS.releaseVelocityScale;
 
-      const clamp =
-        (value: number) =>
-          Math.max(
-            -PHYSICS.maxReleaseVelocity,
-            Math.min(
-              PHYSICS.maxReleaseVelocity,
-              value
-            )
-          );
-
       Body.setVelocity(
         drag.body,
         {
@@ -467,18 +382,9 @@ export function useSkillPhysics({
 
       Body.setAngularVelocity(
         drag.body,
-        Math.max(
-          -PHYSICS.maxAngularVelocity,
-          Math.min(
-            PHYSICS.maxAngularVelocity,
-            vx * 0.00012
-          )
+        clamp(
+          vx * 0.00012
         )
-      );
-
-      Composite.remove(
-        engine.world,
-        drag.anchor
       );
 
       Composite.remove(
@@ -486,15 +392,20 @@ export function useSkillPhysics({
         drag.constraint
       );
 
+      Composite.remove(
+        engine.world,
+        drag.anchor
+      );
+
       dragRef.current =
         null;
     }, []);
 
-  const handlePointerDown =
+  const pointerDown =
     useCallback(
       (
         id: string,
-        event: React.PointerEvent<HTMLButtonElement>
+        event: globalThis.PointerEvent
       ) => {
         const engine =
           engineRef.current;
@@ -526,31 +437,25 @@ export function useSkillPhysics({
             rect.top,
         };
 
-        const hit =
-          Query.point(
+        if (
+          !Query.point(
             [item.body],
             point
-          );
-
-        if (!hit.length) {
+          ).length
+        ) {
           return;
         }
 
-        event.currentTarget.setPointerCapture(
-          event.pointerId
+        release();
+
+        Body.setVelocity(
+          item.body,
+          { x: 0, y: 0 }
         );
 
         Body.setAngularVelocity(
           item.body,
           0
-        );
-
-        Body.setVelocity(
-          item.body,
-          {
-            x: 0,
-            y: 0,
-          }
         );
 
         Body.setSleeping(
@@ -591,8 +496,8 @@ export function useSkillPhysics({
         );
 
         dragRef.current = {
-          id,
-          body: item.body,
+          body:
+            item.body,
           anchor,
           constraint,
           pointerId:
@@ -607,16 +512,14 @@ export function useSkillPhysics({
           ],
         };
       },
-      [stageRef]
+      [release, stageRef]
     );
 
   useEffect(() => {
     const stage =
       stageRef.current;
 
-    if (!stage) {
-      return;
-    }
+    if (!stage) return;
 
     const engine =
       Engine.create({
@@ -627,48 +530,49 @@ export function useSkillPhysics({
     engine.gravity.y =
       PHYSICS.gravity;
 
-    engine.timing.timeScale =
-      1;
-
     engineRef.current =
       engine;
 
-    const resizeObserver =
-      new ResizeObserver(() => {
-        if (!readyRef.current) {
-          installBodies();
+    const start =
+      () => {
+        if (
+          readyRef.current ||
+          !visibleRef.current
+        ) {
           return;
         }
 
-        buildWalls();
-        clampBodies();
-      });
+        initialize();
+      };
 
-    resizeObserver.observe(stage);
-
-    const intersectionObserver =
+    const observer =
       new IntersectionObserver(
         ([entry]) => {
           visibleRef.current =
             entry.isIntersecting;
 
-          if (
-            entry.isIntersecting &&
-            !readyRef.current
-          ) {
-            installBodies();
-          }
+          start();
         },
         {
           threshold: 0.05,
         }
       );
 
-    intersectionObserver.observe(
-      stage
-    );
+    observer.observe(stage);
 
-    const onVisibilityChange =
+    const resize =
+      new ResizeObserver(() => {
+        if (!readyRef.current) {
+          start();
+          return;
+        }
+
+        createWalls();
+      });
+
+    resize.observe(stage);
+
+    const onVisibility =
       () => {
         pageVisibleRef.current =
           document.visibilityState ===
@@ -677,11 +581,11 @@ export function useSkillPhysics({
 
     document.addEventListener(
       "visibilitychange",
-      onVisibilityChange
+      onVisibility
     );
 
-    const onPointerMove =
-      (event: PointerEvent) => {
+    const onMove =
+      (event: globalThis.PointerEvent) => {
         const drag =
           dragRef.current;
 
@@ -714,145 +618,109 @@ export function useSkillPhysics({
           point
         );
 
-        const now =
-          performance.now();
-
         drag.history.push({
           x: point.x,
           y: point.y,
-          time: now,
+          time:
+            performance.now(),
         });
 
         if (
-          drag.history.length >
-          6
+          drag.history.length > 6
         ) {
           drag.history.shift();
         }
       };
 
-    const onPointerUp =
-      (event: PointerEvent) => {
+    const onUp =
+      (event: globalThis.PointerEvent) => {
         const drag =
           dragRef.current;
 
         if (
           !drag ||
-          event.pointerId !==
-            drag.pointerId
+          drag.pointerId !==
+            event.pointerId
         ) {
           return;
         }
 
-        releaseDrag();
+        release();
       };
 
     window.addEventListener(
       "pointermove",
-      onPointerMove,
-      {
-        passive: true,
-      }
+      onMove,
+      { passive: true }
     );
 
     window.addEventListener(
       "pointerup",
-      onPointerUp
+      onUp
     );
 
-    const onCollision =
-      (
-        event: IEventCollision<Engine>
-      ) => {
-        for (const pair of event.pairs) {
-          if (
-            pair.bodyA.isStatic ||
-            pair.bodyB.isStatic
-          ) {
-            continue;
-          }
-        }
-      };
-
-    Events.on(
-      engine,
-      "collisionStart",
-      onCollision
-    );
-
-    let lastTime =
-      performance.now();
+    let raf = 0;
+    let last = performance.now();
 
     const tick =
       (time: number) => {
-        rafRef.current =
+        raf =
           requestAnimationFrame(
             tick
           );
 
-        const active =
-          visibleRef.current &&
-          pageVisibleRef.current;
-
-        if (!active) {
-          lastTime = time;
+        if (
+          !visibleRef.current ||
+          !pageVisibleRef.current
+        ) {
+          last = time;
           return;
         }
 
         const delta =
           Math.min(
             32,
-            time -
-              lastTime
+            time - last
           );
 
-        lastTime = time;
+        last = time;
 
         Engine.update(
           engine,
           delta || 16.667
         );
 
-        renderBodies();
+        render();
       };
 
-    rafRef.current =
-      requestAnimationFrame(tick);
+    raf =
+      requestAnimationFrame(
+        tick
+      );
 
     return () => {
-      if (
-        rafRef.current !==
-        null
-      ) {
-        cancelAnimationFrame(
-          rafRef.current
-        );
-      }
+      cancelAnimationFrame(
+        raf
+      );
 
-      releaseDrag();
+      release();
 
-      intersectionObserver.disconnect();
-      resizeObserver.disconnect();
+      observer.disconnect();
+      resize.disconnect();
 
       document.removeEventListener(
         "visibilitychange",
-        onVisibilityChange
+        onVisibility
       );
 
       window.removeEventListener(
         "pointermove",
-        onPointerMove
+        onMove
       );
 
       window.removeEventListener(
         "pointerup",
-        onPointerUp
-      );
-
-      Events.off(
-        engine,
-        "collisionStart",
-        onCollision
+        onUp
       );
 
       Composite.clear(
@@ -861,80 +729,72 @@ export function useSkillPhysics({
       );
 
       Engine.clear(engine);
-
       engineRef.current =
         null;
     };
   }, [
-    buildWalls,
-    clampBodies,
-    installBodies,
-    releaseDrag,
-    renderBodies,
+    createWalls,
+    initialize,
+    release,
+    render,
     stageRef,
   ]);
 
   const reset =
     useCallback(() => {
-      const engine =
-        engineRef.current;
+      release();
 
-      if (!engine) return;
+      bodiesRef.current.forEach(
+        (item) => {
+          const start =
+            initialRef.current.get(
+              item.element.dataset.skillId!
+            );
 
-      releaseDrag();
+          if (
+            !start ||
+            !item.body
+          ) {
+            return;
+          }
 
-      for (const [
-        id,
-        item,
-      ] of bodiesRef.current) {
-        const start =
-          initialStateRef.current.get(
-            id
+          Body.setPosition(
+            item.body,
+            start
           );
 
-        if (!start) continue;
+          Body.setAngle(
+            item.body,
+            0
+          );
 
-        Body.setPosition(
-          item.body,
-          {
-            x: start.x,
-            y: start.y,
-          }
-        );
+          Body.setVelocity(
+            item.body,
+            { x: 0, y: 0 }
+          );
 
-        Body.setAngle(
-          item.body,
-          start.angle
-        );
+          Body.setAngularVelocity(
+            item.body,
+            0
+          );
 
-        Body.setVelocity(
-          item.body,
-          {
-            x: 0,
-            y: 0,
-          }
-        );
+          Body.setSleeping(
+            item.body,
+            false
+          );
+        }
+      );
 
-        Body.setAngularVelocity(
-          item.body,
-          0
-        );
-
-        Body.setSleeping(
-          item.body,
-          false
-        );
-      }
-
-      renderBodies();
-    }, [
-      releaseDrag,
-      renderBodies,
-    ]);
+      render();
+    }, [release, render]);
 
   return {
     setCardRef,
-    handlePointerDown,
+    handlePointerDown:
+      pointerDown as (
+        id: string,
+        event: ReactPointerEvent<HTMLButtonElement>
+      ) => void,
     reset,
   };
 }
