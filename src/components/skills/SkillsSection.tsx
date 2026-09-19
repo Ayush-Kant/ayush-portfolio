@@ -1,5 +1,6 @@
 import styles from "./SkillsSection.module.css";
-import { SKILL_GROUPS } from "./skills.data";
+
+import SkillPhysicsTray from "./SkillPhysicsTray";
 
 export default function SkillsSection() {
   return (
@@ -9,7 +10,7 @@ export default function SkillsSection() {
       aria-labelledby="skills-title"
     >
       <div className={styles.shell}>
-        <div className={styles.heading}>
+        <header className={styles.heading}>
           <p className={styles.kicker}>
             <span aria-hidden="true">✦</span>
             The toolkit
@@ -19,45 +20,20 @@ export default function SkillsSection() {
             id="skills-title"
             className={styles.title}
           >
-            Things I use
+            Start with
             <br />
-            to build.
+            one box.
           </h2>
 
           <p className={styles.intro}>
-            A practical stack for turning ideas
-            into interfaces, products, and
-            working systems.
+            Double-click and hold the JavaScript box,
+            move it around the tray, then release it.
+            It should fall, bounce once, and settle
+            naturally.
           </p>
-        </div>
+        </header>
 
-        <div className={styles.groups}>
-          {SKILL_GROUPS.map((group) => (
-            <div
-              className={styles.group}
-              key={group.label}
-            >
-              <p className={styles.label}>
-                {group.label}
-              </p>
-
-              <div className={styles.list}>
-                {group.skills.map((skill) => (
-                  <span
-                    className={styles.chip}
-                    key={skill}
-                  >
-                    <span
-                      className={styles.dot}
-                      aria-hidden="true"
-                    />
-                    {skill}
-                  </span>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
+        <SkillPhysicsTray />
       </div>
     </section>
   );
