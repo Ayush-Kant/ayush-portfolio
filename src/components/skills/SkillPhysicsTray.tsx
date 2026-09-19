@@ -1,6 +1,8 @@
+
 "use client";
 
 import {
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -12,8 +14,9 @@ import {
 } from "./skills.data";
 import SkillBox from "./SkillBox";
 import {
-  useSingleBoxPhysics,
-} from "./useSingleBoxPhysics";
+  type SkillPhysicsBodyConfig,
+  useSkillPhysicsWorld,
+} from "./useSkillPhysicsWorld";
 
 type InteractionState =
   | "ready"
@@ -42,18 +45,28 @@ export default function SkillPhysicsTray() {
       null
     >(null);
 
-  useSingleBoxPhysics({
-    trayRef,
-    boxRef: jsBoxRef,
-    initialXPercent: 0.18,
-    onStateChange: setJsInteraction,
-  });
+  const physicsBodies =
+    useMemo<readonly SkillPhysicsBodyConfig[]>(
+      () => [
+        {
+          id: "javascript",
+          boxRef: jsBoxRef,
+          initialXPercent: 0.18,
+          onStateChange: setJsInteraction,
+        },
+        {
+          id: "typescript",
+          boxRef: tsBoxRef,
+          initialXPercent: 0.46,
+          onStateChange: setTsInteraction,
+        },
+      ],
+      []
+    );
 
-  useSingleBoxPhysics({
+  useSkillPhysicsWorld({
     trayRef,
-    boxRef: tsBoxRef,
-    initialXPercent: 0.46,
-    onStateChange: setTsInteraction,
+    bodies: physicsBodies,
   });
 
   const draggingSkill =
@@ -87,7 +100,7 @@ export default function SkillPhysicsTray() {
               }
             >
               {draggingSkill
-                ? `${draggingSkill} HELD`
+                ? draggingSkill + " HELD"
                 : "READY"}
             </span>
           </div>
