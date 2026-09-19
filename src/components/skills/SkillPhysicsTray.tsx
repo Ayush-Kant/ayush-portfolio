@@ -22,28 +22,29 @@ import {
 type InteractionState = "ready" | "dragging";
 
 const INITIAL_STACK_LAYOUT = [
-  { xPercent: 0.055, level: 0 },
-  { xPercent: 0.048, level: 1 },
-  { xPercent: 0.061, level: 2 },
-  { xPercent: 0.052, level: 3 },
+  { xPercent: 0.035, level: 0 },
+  { xPercent: 0.09, level: 1 },
+  { xPercent: 0.045, level: 2 },
 
-  { xPercent: 0.255, level: 0 },
-  { xPercent: 0.247, level: 1 },
-  { xPercent: 0.261, level: 2 },
-  { xPercent: 0.251, level: 3 },
+  { xPercent: 0.19, level: 0 },
+  { xPercent: 0.155, level: 1 },
+  { xPercent: 0.21, level: 2 },
 
-  { xPercent: 0.47, level: 0 },
-  { xPercent: 0.463, level: 1 },
-  { xPercent: 0.478, level: 2 },
+  { xPercent: 0.365, level: 0 },
+  { xPercent: 0.41, level: 1 },
+  { xPercent: 0.385, level: 2 },
 
-  { xPercent: 0.682, level: 0 },
-  { xPercent: 0.674, level: 1 },
-  { xPercent: 0.688, level: 2 },
-  { xPercent: 0.679, level: 3 },
+  { xPercent: 0.545, level: 0 },
+  { xPercent: 0.505, level: 1 },
+  { xPercent: 0.57, level: 2 },
 
-  { xPercent: 0.872, level: 0 },
-  { xPercent: 0.864, level: 1 },
-  { xPercent: 0.879, level: 2 },
+  { xPercent: 0.72, level: 0 },
+  { xPercent: 0.675, level: 1 },
+  { xPercent: 0.745, level: 2 },
+
+  { xPercent: 0.885, level: 0 },
+  { xPercent: 0.845, level: 1 },
+  { xPercent: 0.91, level: 2 },
 ] as const;
 
 export default function SkillPhysicsTray() {
