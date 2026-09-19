@@ -140,7 +140,7 @@ a {
   min-height: 0;
 
   margin-top:
-    72px;
+    50px;
 
   display: flex;
   align-items: center;
@@ -158,9 +158,9 @@ a {
       transparent 0%,
       rgba(0, 0, 0, 0.72) 7%,
       #000 15%,
-      #000 86%,
-      rgba(0, 0, 0, 0.72) 94%,
-      transparent 100%
+      #000 6%,
+      rgba(0, 0, 0, 0.72) 4%,
+      transparent 0%
     );
 
   mask-image:
@@ -170,8 +170,8 @@ a {
       rgba(0, 0, 0, 0.72) 7%,
       #000 15%,
       #000 86%,
-      rgba(0, 0, 0, 0.72) 94%,
-      transparent 100%
+      rgba(0, 0, 0, 0.72) 4%,
+      transparent 0%
     );
 }
 
