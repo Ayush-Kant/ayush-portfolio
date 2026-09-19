@@ -26,14 +26,16 @@ type Sample = {
 };
 
 type Args = {
-  trayRef: RefObject<HTMLDivElement | null>;
-  boxRef: RefObject<HTMLButtonElement | null>;
-  onStateChange: (
-    state:
-      | "ready"
-      | "armed"
-      | "dragging"
-  ) => void;
+  trayRef:
+    RefObject<HTMLDivElement | null>;
+  boxRef:
+    RefObject<HTMLButtonElement | null>;
+  onStateChange:
+    (
+      state:
+        | "ready"
+        | "dragging"
+    ) => void;
 };
 
 const GRAVITY = 1850;
@@ -43,9 +45,6 @@ const FLOOR_FRICTION = 0.78;
 const WALL_RESTITUTION = 0.32;
 const MAX_RELEASE_SPEED = 1350;
 const SLEEP_SPEED = 14;
-
-const DOUBLE_PRESS_WINDOW_MS = 800;
-const DOUBLE_PRESS_DISTANCE = 40;
 
 const clamp = (
   value: number,
@@ -72,9 +71,6 @@ export function useSingleBoxPhysics({
       spin: 0,
       sleeping: true,
     });
-
-  const firstPressRef =
-    useRef<Sample | null>(null);
 
   const dragRef =
     useRef<{
@@ -162,11 +158,9 @@ export function useSingleBoxPhysics({
         x:
           event.clientX -
           rect.left,
-
         y:
           event.clientY -
           rect.top,
-
         time:
           performance.now(),
       };
@@ -181,6 +175,53 @@ export function useSingleBoxPhysics({
         ) rotate(
           ${p.angle}rad
         )`;
+    };
+
+    const startDrag = (
+      event: PointerEvent,
+      point: Sample
+    ) => {
+      const inside =
+        point.x >= p.x &&
+        point.x <=
+          p.x + boxWidth &&
+        point.y >= p.y &&
+        point.y <=
+          p.y + boxHeight;
+
+      if (!inside) {
+        return;
+      }
+
+      event.preventDefault();
+
+      p.vx = 0;
+      p.vy = 0;
+      p.spin = 0;
+      p.sleeping = false;
+
+      dragRef.current = {
+        pointerId:
+          event.pointerId,
+        offsetX:
+          point.x - p.x,
+        offsetY:
+          point.y - p.y,
+        samples: [point],
+      };
+
+      try {
+        box.setPointerCapture(
+          event.pointerId
+        );
+      } catch {
+        // Pointer capture is optional.
+      }
+
+      box.style.zIndex = "20";
+      onStateChange(
+        "dragging"
+      );
     };
 
     const stopDrag = (
@@ -238,70 +279,20 @@ export function useSingleBoxPhysics({
       );
 
       p.sleeping = false;
-      dragRef.current = null;
-      firstPressRef.current = null;
+      dragRef.current =
+        null;
 
       try {
         box.releasePointerCapture(
           event.pointerId
         );
       } catch {
-        // Pointer capture can already be released.
+        // Pointer capture can already be gone.
       }
 
       box.style.zIndex = "";
-      onStateChange("ready");
-    };
-
-    const startDrag = (
-      event: PointerEvent,
-      firstPoint: Sample
-    ) => {
-      const inside =
-        firstPoint.x >= p.x &&
-        firstPoint.x <=
-          p.x + boxWidth &&
-        firstPoint.y >= p.y &&
-        firstPoint.y <=
-          p.y + boxHeight;
-
-      if (!inside) {
-        return;
-      }
-
-      event.preventDefault();
-
-      p.vx = 0;
-      p.vy = 0;
-      p.spin = 0;
-      p.sleeping = false;
-
-      dragRef.current = {
-        pointerId:
-          event.pointerId,
-        offsetX:
-          firstPoint.x - p.x,
-        offsetY:
-          firstPoint.y - p.y,
-        samples: [
-          firstPoint,
-        ],
-      };
-
-      firstPressRef.current = null;
-
-      try {
-        box.setPointerCapture(
-          event.pointerId
-        );
-      } catch {
-        // Pointer capture is optional.
-      }
-
-      box.style.zIndex = "20";
-
       onStateChange(
-        "dragging"
+        "ready"
       );
     };
 
@@ -316,54 +307,9 @@ export function useSingleBoxPhysics({
 
       measure();
 
-      const point =
-        pointerPoint(event);
-
-      const first =
-        firstPressRef.current;
-
-      /*
-       * Chrome/Edge/most desktop browsers expose
-       * the native mouse click count on PointerEvent.detail.
-       *
-       * We trust that first because it is exactly the
-       * browser's definition of a double-click.
-       *
-       * The timestamp fallback protects browsers/input
-       * devices where detail is not useful.
-       */
-      const nativeDoubleClick =
-        event.detail >= 2;
-
-      const fallbackDoubleClick =
-        !!first &&
-        point.time -
-          first.time <=
-          DOUBLE_PRESS_WINDOW_MS &&
-        Math.hypot(
-          point.x -
-            first.x,
-          point.y -
-            first.y
-        ) <=
-          DOUBLE_PRESS_DISTANCE;
-
-      if (
-        nativeDoubleClick ||
-        fallbackDoubleClick
-      ) {
-        startDrag(
-          event,
-          point
-        );
-        return;
-      }
-
-      firstPressRef.current =
-        point;
-
-      onStateChange(
-        "armed"
+      startDrag(
+        event,
+        pointerPoint(event)
       );
     };
 
@@ -445,10 +391,16 @@ export function useSingleBoxPhysics({
       p.vy = 0;
       p.spin = 0;
       p.sleeping = true;
+      dragRef.current =
+        null;
 
-      dragRef.current = null;
-      firstPressRef.current = null;
+      try {
+        box.releasePointerCapture(
+          event.pointerId
+        );
+      } catch {}
 
+      box.style.zIndex = "";
       onStateChange(
         "ready"
       );
@@ -464,13 +416,11 @@ export function useSingleBoxPhysics({
 
     measure();
 
-    // Start exactly on the floor.
     p.x =
       Math.max(
         0,
         (trayWidth -
-          boxWidth) *
-          0.22
+          boxWidth) * 0.18
       );
 
     p.y =
@@ -483,7 +433,6 @@ export function useSingleBoxPhysics({
     p.sleeping = true;
 
     render();
-
     onStateChange(
       "ready"
     );
@@ -502,7 +451,8 @@ export function useSingleBoxPhysics({
           )
         );
 
-      previousTime = time;
+      previousTime =
+        time;
 
       if (
         !dragRef.current &&
@@ -511,10 +461,11 @@ export function useSingleBoxPhysics({
         p.vy +=
           GRAVITY * dt;
 
-        p.vx *= Math.pow(
-          AIR_DRAG,
-          dt * 60
-        );
+        p.vx *=
+          Math.pow(
+            AIR_DRAG,
+            dt * 60
+          );
 
         p.x +=
           p.vx * dt;
@@ -539,18 +490,15 @@ export function useSingleBoxPhysics({
           p.x < 0
         ) {
           p.x = 0;
-
           p.vx =
             Math.abs(
               p.vx
             ) *
             WALL_RESTITUTION;
         } else if (
-          p.x >
-          maxX
+          p.x > maxX
         ) {
           p.x = maxX;
-
           p.vx =
             -Math.abs(
               p.vx
@@ -559,8 +507,7 @@ export function useSingleBoxPhysics({
         }
 
         if (
-          p.y >=
-          floor
+          p.y >= floor
         ) {
           p.y = floor;
 
@@ -596,19 +543,15 @@ export function useSingleBoxPhysics({
         if (
           Math.abs(
             p.vx
-          ) <
-            SLEEP_SPEED &&
+          ) < SLEEP_SPEED &&
           Math.abs(
             p.vy
-          ) <
-            SLEEP_SPEED &&
+          ) < SLEEP_SPEED &&
           Math.abs(
             p.spin
-          ) <
-            0.03 &&
+          ) < 0.03 &&
           p.y >=
-            floor -
-              0.5
+            floor - 0.5
         ) {
           p.vx = 0;
           p.vy = 0;
@@ -679,8 +622,8 @@ export function useSingleBoxPhysics({
         onPointerDown
       );
 
-      dragRef.current = null;
-      firstPressRef.current = null;
+      dragRef.current =
+        null;
     };
   }, [
     boxRef,
