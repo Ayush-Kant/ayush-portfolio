@@ -10,77 +10,142 @@ import { JAVASCRIPT_SKILL } from "./skills.data";
 import SkillBox from "./SkillBox";
 import { useSingleBoxPhysics } from "./useSingleBoxPhysics";
 
+type InteractionState =
+  | "ready"
+  | "armed"
+  | "dragging";
+
 export default function SkillPhysicsTray() {
   const trayRef =
-    useRef<HTMLDivElement | null>(null);
+    useRef<HTMLDivElement | null>(
+      null
+    );
 
   const boxRef =
-    useRef<HTMLButtonElement | null>(null);
+    useRef<HTMLButtonElement | null>(
+      null
+    );
 
-  const [isDragging, setIsDragging] =
-    useState(false);
+  const [
+    interaction,
+    setInteraction,
+  ] =
+    useState<InteractionState>(
+      "ready"
+    );
 
   useSingleBoxPhysics({
     trayRef,
     boxRef,
-    onDraggingChange: setIsDragging,
+    onStateChange:
+      setInteraction,
   });
 
   return (
-    <div className={styles.trayWrap}>
-      <div className={styles.trayHeader}>
+    <div
+      className={
+        styles.trayWrap
+      }
+    >
+      <div
+        className={
+          styles.trayHeader
+        }
+      >
         <div>
-          <p className={styles.trayTitle}>
+          <p
+            className={
+              styles.trayTitle
+            }
+          >
             {JAVASCRIPT_SKILL.name}
           </p>
-          <p className={styles.trayHint}>
-            Double-click + hold to move
+
+          <p
+            className={
+              styles.trayHint
+            }
+          >
+            Double-click + hold
+            {" · "}
+            release to drop
           </p>
         </div>
 
         <span
-          className={styles.trayStatus}
-          data-dragging={
-            isDragging ? "true" : "false"
+          className={
+            styles.trayStatus
+          }
+          data-state={
+            interaction
           }
         >
-          {isDragging
+          {interaction ===
+          "dragging"
             ? "HELD"
-            : "READY"}
+            : interaction ===
+                "armed"
+              ? "CLICK AGAIN"
+              : "READY"}
         </span>
       </div>
 
       <div
         ref={trayRef}
-        className={styles.tray}
+        className={
+          styles.tray
+        }
       >
         <div
-          className={styles.trayGrid}
-          aria-hidden="true"
-        />
-        <div
-          className={styles.trayGlow}
-          aria-hidden="true"
-        />
-        <div
-          className={styles.trayWall}
+          className={
+            styles.trayGrid
+          }
           aria-hidden="true"
         />
 
         <div
-          className={styles.trayInstruction}
+          className={
+            styles.trayGlow
+          }
+          aria-hidden="true"
+        />
+
+        <div
+          className={
+            styles.trayWall
+          }
+          aria-hidden="true"
+        />
+
+        <div
+          className={
+            styles.trayInstruction
+          }
           aria-hidden="true"
         >
-          Grab it · move it · drop it
+          double-click
+          {"  "}
+          ·
+          {"  "}
+          move
+          {"  "}
+          ·
+          {"  "}
+          drop
         </div>
 
         <SkillBox
           ref={boxRef}
-          isDragging={isDragging}
+          isDragging={
+            interaction ===
+            "dragging"
+          }
         />
 
         <div
-          className={styles.trayFloor}
+          className={
+            styles.trayFloor
+          }
           aria-hidden="true"
         />
       </div>
