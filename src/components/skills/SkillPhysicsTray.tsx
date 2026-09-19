@@ -8,9 +8,7 @@ import {
 import styles from "./SkillsSection.module.css";
 import { JAVASCRIPT_SKILL } from "./skills.data";
 import SkillBox from "./SkillBox";
-import {
-  useSingleBoxPhysics,
-} from "./useSingleBoxPhysics";
+import { useSingleBoxPhysics } from "./useSingleBoxPhysics";
 
 export default function SkillPhysicsTray() {
   const trayRef =
@@ -22,13 +20,10 @@ export default function SkillPhysicsTray() {
   const [isDragging, setIsDragging] =
     useState(false);
 
-  const {
-    onPointerDown,
-  } = useSingleBoxPhysics({
+  useSingleBoxPhysics({
     trayRef,
     boxRef,
-    onDraggingChange:
-      setIsDragging,
+    onDraggingChange: setIsDragging,
   });
 
   return (
@@ -38,7 +33,6 @@ export default function SkillPhysicsTray() {
           <p className={styles.trayTitle}>
             {JAVASCRIPT_SKILL.name}
           </p>
-
           <p className={styles.trayHint}>
             Double-click + hold to move
           </p>
@@ -64,12 +58,10 @@ export default function SkillPhysicsTray() {
           className={styles.trayGrid}
           aria-hidden="true"
         />
-
         <div
           className={styles.trayGlow}
           aria-hidden="true"
         />
-
         <div
           className={styles.trayWall}
           aria-hidden="true"
@@ -85,9 +77,6 @@ export default function SkillPhysicsTray() {
         <SkillBox
           ref={boxRef}
           isDragging={isDragging}
-          onPointerDown={
-            onPointerDown
-          }
         />
 
         <div
