@@ -1,11 +1,14 @@
 import {
   forwardRef,
+  type MouseEventHandler,
 } from "react";
 
 import styles from "./SkillsSection.module.css";
 
 type SkillBoxProps = {
   isDragging: boolean;
+  onDoubleClick:
+    MouseEventHandler<HTMLButtonElement>;
 };
 
 const SkillBox = forwardRef<
@@ -14,6 +17,7 @@ const SkillBox = forwardRef<
 >(function SkillBox(
   {
     isDragging,
+    onDoubleClick,
   },
   ref
 ) {
@@ -29,10 +33,13 @@ const SkillBox = forwardRef<
           ? "true"
           : "false"
       }
+      onDoubleClick={
+        onDoubleClick
+      }
       aria-label={
         "JavaScript skill box. " +
-        "Double-click and hold " +
-        "to pick it up."
+        "Press and hold to move it. " +
+        "Double-click to view details."
       }
     >
       <span
@@ -46,5 +53,6 @@ const SkillBox = forwardRef<
     </button>
   );
 });
+SkillBox.displayName = "SkillBox";
 
 export default SkillBox;
