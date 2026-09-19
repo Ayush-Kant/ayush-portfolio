@@ -8,6 +8,7 @@ import {
 
 import styles from "./SkillsSection.module.css";
 import {
+  EXPRESS_SKILL,
   JAVASCRIPT_SKILL,
   NODEJS_SKILL,
   TYPESCRIPT_SKILL,
@@ -35,6 +36,9 @@ export default function SkillPhysicsTray() {
   const nodeBoxRef =
     useRef<HTMLButtonElement | null>(null);
 
+  const expressBoxRef =
+    useRef<HTMLButtonElement | null>(null);
+
   const [jsInteraction, setJsInteraction] =
     useState<InteractionState>("ready");
 
@@ -44,11 +48,15 @@ export default function SkillPhysicsTray() {
   const [nodeInteraction, setNodeInteraction] =
     useState<InteractionState>("ready");
 
+  const [expressInteraction, setExpressInteraction] =
+    useState<InteractionState>("ready");
+
   const [activeSkill, setActiveSkill] =
     useState<
       | typeof JAVASCRIPT_SKILL
       | typeof TYPESCRIPT_SKILL
       | typeof NODEJS_SKILL
+      | typeof EXPRESS_SKILL
       | null
     >(null);
 
@@ -70,8 +78,14 @@ export default function SkillPhysicsTray() {
         {
           id: "nodejs",
           boxRef: nodeBoxRef,
-          initialXPercent: 0.70,
+          initialXPercent: 0.68,
           onStateChange: setNodeInteraction,
+        },
+        {
+          id: "express",
+          boxRef: expressBoxRef,
+          initialXPercent: 0.84,
+          onStateChange: setExpressInteraction,
         },
       ],
       []
@@ -89,7 +103,9 @@ export default function SkillPhysicsTray() {
         ? TYPESCRIPT_SKILL.name
         : nodeInteraction === "dragging"
           ? NODEJS_SKILL.name
-          : null;
+          : expressInteraction === "dragging"
+            ? EXPRESS_SKILL.name
+            : null;
 
   return (
     <div className={styles.skillsPlayground}>
@@ -98,7 +114,7 @@ export default function SkillPhysicsTray() {
           <div className={styles.trayHeader}>
             <div>
               <p className={styles.trayTitle}>
-                JavaScript + TypeScript + Node.js
+                JavaScript + TypeScript + Node.js + Express
               </p>
 
               <p className={styles.trayHint}>
@@ -185,6 +201,19 @@ export default function SkillPhysicsTray() {
               }
             />
 
+            <SkillBox
+              ref={expressBoxRef}
+              skill="express"
+              isDragging={
+                expressInteraction === "dragging"
+              }
+              onDoubleClick={() =>
+                setActiveSkill(
+                  EXPRESS_SKILL
+                )
+              }
+            />
+
             <div
               className={styles.trayFloor}
               aria-hidden="true"
@@ -235,7 +264,7 @@ export default function SkillPhysicsTray() {
             >
               {activeSkill
                 ? activeSkill.detail.summary
-                : "Double-click JavaScript, TypeScript or Node.js to reveal how I use it."}
+                : "Double-click JavaScript, TypeScript, Node.js or Express to reveal how I use it."}
             </p>
 
             <div
@@ -245,7 +274,7 @@ export default function SkillPhysicsTray() {
                 activeSkill
                   ? activeSkill.detail.highlights
                   : [
-                      "JavaScript, TypeScript and Node.js",
+                      "JavaScript, TypeScript, Node.js and Express",
                       "Press + hold to move",
                       "Release to drop",
                     ]
