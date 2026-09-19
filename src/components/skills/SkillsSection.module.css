@@ -1,744 +1,227 @@
 .section {
-  padding:
-    clamp(92px, 9vw, 136px)
-    clamp(20px, 5vw, 76px)
-    clamp(112px, 12vw, 160px);
+  padding: clamp(92px, 9vw, 136px) clamp(20px, 5vw, 76px) 150px;
 }
 
 .shell {
-  width:
-    min(1280px, 100%);
-
+  width: min(1280px, 100%);
   margin-inline: auto;
-
   display: grid;
-
-  grid-template-columns:
-    minmax(220px, 0.55fr)
-    minmax(0, 1.45fr);
-
-  gap:
-    clamp(40px, 7vw, 92px);
-
+  grid-template-columns: minmax(220px, .55fr) minmax(0, 1.45fr);
+  gap: clamp(40px, 7vw, 92px);
   align-items: center;
 }
 
-.heading {
-  max-width: 420px;
-}
+.heading { max-width: 420px; }
 
 .kicker {
   display: flex;
   gap: 8px;
-
-  margin:
-    0 0 14px;
-
-  color:
-    rgba(
-      181,
-      150,
-      255,
-      0.86
-    );
-
-  font-size: 0.68rem;
+  margin: 0 0 14px;
+  color: rgba(181,150,255,.86);
+  font-size: .68rem;
   font-weight: 700;
-
-  letter-spacing:
-    0.17em;
-
-  text-transform:
-    uppercase;
+  letter-spacing: .17em;
+  text-transform: uppercase;
 }
 
-.kicker span {
-  color:
-    #f6cf67;
-}
+.kicker span { color: #f6cf67; }
 
 .title {
   margin: 0;
-
-  color:
-    rgba(
-      248,
-      245,
-      252,
-      0.97
-    );
-
-  font-size:
-    clamp(
-      3rem,
-      5vw,
-      5.2rem
-    );
-
-  line-height:
-    0.92;
-
-  letter-spacing:
-    -0.055em;
+  color: rgba(248,245,252,.97);
+  font-size: clamp(3rem,5vw,5.2rem);
+  line-height: .92;
+  letter-spacing: -.055em;
 }
 
 .intro {
   max-width: 400px;
-
-  margin:
-    22px 0 0;
-
-  color:
-    rgba(
-      218,
-      211,
-      232,
-      0.6
-    );
-
-  font-size:
-    0.95rem;
-
-  line-height:
-    1.72;
+  margin: 22px 0 0;
+  color: rgba(218,211,232,.6);
+  font-size: .95rem;
+  line-height: 1.72;
 }
 
-.trayWrap {
-  min-width: 0;
-}
+.trayWrap { min-width: 0; }
 
 .trayHeader {
   display: flex;
-
   align-items: center;
-
-  justify-content:
-    space-between;
-
+  justify-content: space-between;
   gap: 16px;
-
-  margin-bottom:
-    12px;
+  margin-bottom: 12px;
 }
 
-.trayTitle,
-.trayHint {
-  margin: 0;
-}
+.trayTitle, .trayHint { margin: 0; }
 
 .trayTitle {
-  color:
-    rgba(
-      247,
-      242,
-      255,
-      0.9
-    );
-
-  font-size:
-    0.9rem;
-
-  font-weight:
-    700;
+  color: rgba(247,242,255,.9);
+  font-size: .9rem;
+  font-weight: 700;
 }
 
 .trayHint {
-  margin-top:
-    4px;
-
-  color:
-    rgba(
-      215,
-      205,
-      231,
-      0.42
-    );
-
-  font-size:
-    0.74rem;
+  margin-top: 4px;
+  color: rgba(215,205,231,.42);
+  font-size: .74rem;
 }
 
 .trayStatus {
   flex: 0 0 auto;
-
-  padding:
-    5px 8px;
-
-  border:
-    1px solid
-    rgba(
-      194,
-      169,
-      255,
-      0.14
-    );
-
-  border-radius:
-    8px;
-
-  color:
-    rgba(
-      225,
-      215,
-      242,
-      0.34
-    );
-
-  font:
-    700
-    0.56rem /
-    1
-    ui-monospace,
-    SFMono-Regular,
-    Menlo,
-    Monaco,
-    Consolas,
-    monospace;
-
-  letter-spacing:
-    0.1em;
+  padding: 5px 8px;
+  border: 1px solid rgba(194,169,255,.14);
+  border-radius: 8px;
+  color: rgba(225,215,242,.34);
+  font: 700 .56rem/1 ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;
+  letter-spacing: .1em;
 }
 
 .trayStatus[data-dragging="true"] {
-  color:
-    #f7df1e;
-
-  border-color:
-    rgba(
-      247,
-      223,
-      30,
-      0.36
-    );
+  color: #f7df1e;
+  border-color: rgba(247,223,30,.36);
 }
 
 .tray {
   position: relative;
-
-  height:
-    clamp(
-      400px,
-      52vh,
-      560px
-    );
-
+  height: clamp(400px,52vh,560px);
   overflow: hidden;
-
-  border:
-    1px solid
-    rgba(
-      194,
-      169,
-      255,
-      0.16
-    );
-
-  border-radius:
-    24px;
-
+  border: 1px solid rgba(194,169,255,.16);
+  border-radius: 24px;
   background:
-    radial-gradient(
-      circle at 72% 24%,
-      rgba(
-        145,
-        108,
-        255,
-        0.1
-      ),
-      transparent 28%
-    ),
-    linear-gradient(
-      180deg,
-      rgba(
-        20,
-        16,
-        34,
-        0.72
-      ),
-      rgba(
-        7,
-        6,
-        12,
-        0.94
-      )
-    );
-
+    radial-gradient(circle at 72% 24%,rgba(145,108,255,.1),transparent 28%),
+    linear-gradient(180deg,rgba(20,16,34,.72),rgba(7,6,12,.94));
   box-shadow:
-    inset
-    0
-    1px
-    0
-    rgba(
-      255,
-      255,
-      255,
-      0.045
-    ),
-    0
-    24px
-    64px
-    rgba(
-      0,
-      0,
-      0,
-      0.22
-    );
-
-  touch-action:
-    none;
-
-  user-select:
-    none;
+    inset 0 1px 0 rgba(255,255,255,.045),
+    0 24px 64px rgba(0,0,0,.22);
+  touch-action: none;
+  user-select: none;
 }
 
 .trayGrid {
   position: absolute;
   inset: 0;
-
-  opacity:
-    0.28;
-
+  opacity: .28;
   background-image:
-    linear-gradient(
-      rgba(
-        195,
-        173,
-        255,
-        0.04
-      )
-      1px,
-      transparent
-      1px
-    ),
-    linear-gradient(
-      90deg,
-      rgba(
-        195,
-        173,
-        255,
-        0.04
-      )
-      1px,
-      transparent
-      1px
-    );
-
-  background-size:
-    32px 32px;
-
-  pointer-events:
-    none;
+    linear-gradient(rgba(195,173,255,.04) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(195,173,255,.04) 1px,transparent 1px);
+  background-size: 32px 32px;
+  pointer-events: none;
 }
 
 .trayGlow {
   position: absolute;
   inset: 0;
-
-  background:
-    radial-gradient(
-      circle at 25% 70%,
-      rgba(
-        247,
-        223,
-        30,
-        0.04
-      ),
-      transparent 22%
-    );
-
-  pointer-events:
-    none;
+  background: radial-gradient(circle at 25% 70%,rgba(247,223,30,.04),transparent 22%);
+  pointer-events: none;
 }
 
 .trayWall {
   position: absolute;
-
-  inset:
-    14px;
-
-  border:
-    1px solid
-    rgba(
-      194,
-      169,
-      255,
-      0.05
-    );
-
-  border-radius:
-    18px;
-
-  pointer-events:
-    none;
+  inset: 14px;
+  border: 1px solid rgba(194,169,255,.05);
+  border-radius: 18px;
+  pointer-events: none;
 }
 
 .trayInstruction {
   position: absolute;
-
-  top:
-    22px;
-
-  right:
-    24px;
-
-  color:
-    rgba(
-      224,
-      215,
-      241,
-      0.24
-    );
-
-  font:
-    600
-    0.6rem /
-    1.4
-    ui-monospace,
-    SFMono-Regular,
-    Menlo,
-    Monaco,
-    Consolas,
-    monospace;
-
-  letter-spacing:
-    0.06em;
-
-  text-transform:
-    uppercase;
-
-  pointer-events:
-    none;
+  top: 22px;
+  right: 24px;
+  color: rgba(224,215,241,.24);
+  font: 600 .6rem/1.4 ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  pointer-events: none;
 }
 
 .skillBox {
   position: absolute;
-
   top: 0;
   left: 0;
-
-  width:
-    96px;
-
-  height:
-    96px;
-
-  display:
-    flex;
-
-  align-items:
-    flex-end;
-
-  justify-content:
-    flex-end;
-
-  padding:
-    7px;
-
-  border:
-    1px solid
-    rgba(
-      0,
-      0,
-      0,
-      0.3
-    );
-
-  border-radius:
-    3px;
-
-  background:
-    #f7df1e;
-
-  color:
-    #000;
-
+  width: 96px;
+  height: 96px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  padding: 7px;
+  border: 1px solid rgba(0,0,0,.3);
+  border-radius: 3px;
+  background: #f7df1e;
+  color: #000;
   box-shadow:
-    0
-    12px
-    22px
-    rgba(
-      0,
-      0,
-      0,
-      0.34
-    ),
-    inset
-    0
-    0
-    0
-    1px
-    rgba(
-      255,
-      255,
-      255,
-      0.22
-    );
-
-  cursor:
-    default;
-
-  outline:
-    none;
-
-  will-change:
-    transform;
-
-  touch-action:
-    none;
-
-  user-select:
-    none;
-
-  transition:
-    filter
-    140ms ease,
-    box-shadow
-    140ms ease;
+    0 12px 22px rgba(0,0,0,.34),
+    inset 0 0 0 1px rgba(255,255,255,.22);
+  cursor: default;
+  outline: none;
+  will-change: transform;
+  touch-action: none;
+  user-select: none;
+  transition: filter 140ms ease,box-shadow 140ms ease;
 }
 
 .skillBox:hover {
-  filter:
-    brightness(
-      1.03
-    );
-
+  filter: brightness(1.03);
   box-shadow:
-    0
-    16px
-    28px
-    rgba(
-      0,
-      0,
-      0,
-      0.4
-    ),
-    inset
-    0
-    0
-    0
-    1px
-    rgba(
-      255,
-      255,
-      255,
-      0.25
-    );
+    0 16px 28px rgba(0,0,0,.4),
+    inset 0 0 0 1px rgba(255,255,255,.25);
 }
 
 .skillBox[data-dragging="true"] {
-  cursor:
-    grabbing;
-
-  filter:
-    brightness(
-      1.04
-    );
-
+  cursor: grabbing;
+  filter: brightness(1.04);
   box-shadow:
-    0
-    18px
-    34px
-    rgba(
-      0,
-      0,
-      0,
-      0.46
-    ),
-    0
-    0
-    24px
-    rgba(
-      247,
-      223,
-      30,
-      0.1
-    );
+    0 18px 34px rgba(0,0,0,.46),
+    0 0 24px rgba(247,223,30,.1);
 }
 
 .skillBox:focus-visible {
-  outline:
-    2px solid
-    rgba(
-      248,
-      231,
-      91,
-      0.94
-    );
-
-  outline-offset:
-    4px;
+  outline: 2px solid rgba(248,231,91,.94);
+  outline-offset: 4px;
 }
 
 .jsMark {
-  color:
-    #000;
-
-  font:
-    900
-    3.15rem /
-    0.82
-    Arial,
-    Helvetica,
-    sans-serif;
-
-  letter-spacing:
-    -0.12em;
-
-  transform:
-    translate(
-      1px,
-      1px
-    );
+  color: #000;
+  font: 900 3.15rem/.82 Arial,Helvetica,sans-serif;
+  letter-spacing: -.12em;
+  transform: translate(1px,1px);
 }
 
 .trayFloor {
   position: absolute;
-
-  left:
-    18px;
-
-  right:
-    18px;
-
-  bottom:
-    14px;
-
-  height:
-    3px;
-
-  border-radius:
-    999px;
-
-  background:
-    linear-gradient(
-      90deg,
-      transparent,
-      rgba(
-        190,
-        164,
-        255,
-        0.34
-      )
-      12%,
-      rgba(
-        190,
-        164,
-        255,
-        0.34
-      )
-      88%,
-      transparent
-    );
-
-  box-shadow:
-    0
-    -7px
-    16px
-    rgba(
-      179,
-      148,
-      255,
-      0.08
-    );
-
-  pointer-events:
-    none;
+  left: 18px;
+  right: 18px;
+  bottom: 14px;
+  height: 3px;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(190,164,255,.34) 12%,
+    rgba(190,164,255,.34) 88%,
+    transparent
+  );
+  box-shadow: 0 -7px 16px rgba(179,148,255,.08);
+  pointer-events: none;
 }
 
 @media (max-width: 900px) {
-  .shell {
-    grid-template-columns:
-      1fr;
-
-    gap:
-      32px;
-  }
-
-  .heading {
-    max-width:
-      680px;
-  }
-
-  .tray {
-    height:
-      460px;
-  }
+  .shell { grid-template-columns: 1fr; gap: 32px; }
+  .heading { max-width: 680px; }
+  .tray { height: 460px; }
 }
 
 @media (max-width: 560px) {
-  .section {
-    padding:
-      72px
-      18px
-      94px;
-  }
-
-  .title {
-    font-size:
-      clamp(
-        2.7rem,
-        13vw,
-        4rem
-      );
-  }
-
-  .intro {
-    font-size:
-      0.9rem;
-  }
-
-  .tray {
-    height:
-      390px;
-
-    border-radius:
-      20px;
-  }
-
-  .skillBox {
-    width:
-      82px;
-
-    height:
-      82px;
-  }
-
-  .jsMark {
-    font-size:
-      2.65rem;
-  }
-
-  .trayWall {
-    inset:
-      11px;
-
-    border-radius:
-      15px;
-  }
-
-  .trayInstruction {
-    top:
-      17px;
-
-    right:
-      17px;
-
-    font-size:
-      0.52rem;
-  }
-
-  .trayFloor {
-    left:
-      12px;
-
-    right:
-      12px;
-  }
+  .section { padding: 72px 18px 94px; }
+  .title { font-size: clamp(2.7rem,13vw,4rem); }
+  .intro { font-size: .9rem; }
+  .tray { height: 390px; border-radius: 20px; }
+  .skillBox { width: 82px; height: 82px; }
+  .jsMark { font-size: 2.65rem; }
+  .trayWall { inset: 11px; border-radius: 15px; }
+  .trayInstruction { top: 17px; right: 17px; font-size: .52rem; }
+  .trayFloor { left: 12px; right: 12px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .skillBox {
-    transition:
-      none;
-  }
+  .skillBox { transition: none; }
 }
