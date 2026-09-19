@@ -1,8 +1,8 @@
 .section {
   padding:
-    clamp(96px, 10vw, 140px)
-    clamp(22px, 5vw, 76px)
-    clamp(120px, 12vw, 170px);
+    clamp(92px, 9vw, 136px)
+    clamp(20px, 5vw, 76px)
+    clamp(112px, 12vw, 160px);
 }
 
 .shell {
@@ -14,29 +14,25 @@
   display: grid;
 
   grid-template-columns:
-    minmax(230px, 0.55fr)
+    minmax(220px, 0.55fr)
     minmax(0, 1.45fr);
 
   gap:
-    clamp(
-      42px,
-      7vw,
-      96px
-    );
+    clamp(40px, 7vw, 92px);
 
   align-items: center;
 }
 
 .heading {
-  max-width: 430px;
+  max-width: 420px;
 }
 
 .kicker {
   display: flex;
-
   gap: 8px;
 
-  margin: 0 0 14px;
+  margin:
+    0 0 14px;
 
   color:
     rgba(
@@ -47,7 +43,6 @@
     );
 
   font-size: 0.68rem;
-
   font-weight: 700;
 
   letter-spacing:
@@ -102,7 +97,7 @@
     );
 
   font-size:
-    0.96rem;
+    0.95rem;
 
   line-height:
     1.72;
@@ -120,15 +115,18 @@
   justify-content:
     space-between;
 
-  gap: 18px;
+  gap: 16px;
 
   margin-bottom:
     12px;
 }
 
-.trayTitle {
+.trayTitle,
+.trayHint {
   margin: 0;
+}
 
+.trayTitle {
   color:
     rgba(
       247,
@@ -145,15 +143,15 @@
 }
 
 .trayHint {
-  margin:
-    4px 0 0;
+  margin-top:
+    4px;
 
   color:
     rgba(
       215,
       205,
       231,
-      0.44
+      0.42
     );
 
   font-size:
@@ -161,6 +159,8 @@
 }
 
 .trayStatus {
+  flex: 0 0 auto;
+
   padding:
     5px 8px;
 
@@ -181,12 +181,14 @@
       225,
       215,
       242,
-      0.38
+      0.34
     );
 
   font:
-    700 0.57rem /
-    1 ui-monospace,
+    700
+    0.56rem /
+    1
+    ui-monospace,
     SFMono-Regular,
     Menlo,
     Monaco,
@@ -206,18 +208,7 @@
       247,
       223,
       30,
-      0.34
-    );
-
-  box-shadow:
-    0
-    0
-    16px
-    rgba(
-      247,
-      223,
-      30,
-      0.08
+      0.36
     );
 }
 
@@ -226,13 +217,12 @@
 
   height:
     clamp(
-      420px,
-      54vh,
-      580px
+      400px,
+      52vh,
+      560px
     );
 
-  overflow:
-    hidden;
+  overflow: hidden;
 
   border:
     1px solid
@@ -240,7 +230,7 @@
       194,
       169,
       255,
-      0.17
+      0.16
     );
 
   border-radius:
@@ -250,12 +240,12 @@
     radial-gradient(
       circle at 72% 24%,
       rgba(
-        147,
+        145,
         108,
         255,
         0.1
       ),
-      transparent 30%
+      transparent 28%
     ),
     linear-gradient(
       180deg,
@@ -285,13 +275,13 @@
       0.045
     ),
     0
-    28px
-    70px
+    24px
+    64px
     rgba(
       0,
       0,
       0,
-      0.24
+      0.22
     );
 
   touch-action:
@@ -303,11 +293,10 @@
 
 .trayGrid {
   position: absolute;
-
   inset: 0;
 
   opacity:
-    0.32;
+    0.28;
 
   background-image:
     linear-gradient(
@@ -337,39 +326,24 @@
   background-size:
     32px 32px;
 
-  mask-image:
-    linear-gradient(
-      180deg,
-      #000 0%,
-      rgba(
-        0,
-        0,
-        0,
-        0.2
-      )
-      82%,
-      transparent 100%
-    );
-
   pointer-events:
     none;
 }
 
 .trayGlow {
   position: absolute;
-
   inset: 0;
 
   background:
     radial-gradient(
-      circle at 28% 72%,
+      circle at 25% 70%,
       rgba(
         247,
         223,
         30,
-        0.045
+        0.04
       ),
-      transparent 23%
+      transparent 22%
     );
 
   pointer-events:
@@ -402,22 +376,24 @@
   position: absolute;
 
   top:
-    24px;
+    22px;
 
   right:
-    26px;
+    24px;
 
   color:
     rgba(
       224,
       215,
       241,
-      0.28
+      0.24
     );
 
   font:
-    600 0.63rem /
-    1.4 ui-monospace,
+    600
+    0.6rem /
+    1.4
+    ui-monospace,
     SFMono-Regular,
     Menlo,
     Monaco,
@@ -459,13 +435,12 @@
     7px;
 
   border:
-    1px
-    solid
+    1px solid
     rgba(
       0,
       0,
       0,
-      0.34
+      0.3
     );
 
   border-radius:
@@ -474,10 +449,13 @@
   background:
     #f7df1e;
 
+  color:
+    #000;
+
   box-shadow:
     0
-    13px
-    24px
+    12px
+    22px
     rgba(
       0,
       0,
@@ -496,9 +474,6 @@
       0.22
     );
 
-  color:
-    #000;
-
   cursor:
     default;
 
@@ -511,19 +486,14 @@
   touch-action:
     none;
 
-  -webkit-user-select:
-    none;
-
   user-select:
     none;
 
   transition:
-    box-shadow
-    140ms
-    ease,
     filter
-    140ms
-    ease;
+    140ms ease,
+    box-shadow
+    140ms ease;
 }
 
 .skillBox:hover {
@@ -540,7 +510,7 @@
       0,
       0,
       0,
-      0.38
+      0.4
     ),
     inset
     0
@@ -566,8 +536,8 @@
 
   box-shadow:
     0
-    20px
-    36px
+    18px
+    34px
     rgba(
       0,
       0,
@@ -581,19 +551,18 @@
       247,
       223,
       30,
-      0.12
+      0.1
     );
 }
 
 .skillBox:focus-visible {
   outline:
-    2px
-    solid
+    2px solid
     rgba(
       248,
       231,
       91,
-      0.95
+      0.94
     );
 
   outline-offset:
@@ -601,22 +570,19 @@
 }
 
 .jsMark {
-  display:
-    block;
-
   color:
     #000;
 
   font:
     900
-    3.2rem /
-    0.86
+    3.15rem /
+    0.82
     Arial,
     Helvetica,
     sans-serif;
 
   letter-spacing:
-    -0.1em;
+    -0.12em;
 
   transform:
     translate(
@@ -651,14 +617,14 @@
         190,
         164,
         255,
-        0.35
+        0.34
       )
       12%,
       rgba(
         190,
         164,
         255,
-        0.35
+        0.34
       )
       88%,
       transparent
@@ -685,12 +651,12 @@
       1fr;
 
     gap:
-      36px;
+      32px;
   }
 
   .heading {
     max-width:
-      650px;
+      680px;
   }
 
   .tray {
@@ -702,9 +668,9 @@
 @media (max-width: 560px) {
   .section {
     padding:
-      76px
+      72px
       18px
-      98px;
+      94px;
   }
 
   .title {
@@ -723,7 +689,7 @@
 
   .tray {
     height:
-      400px;
+      390px;
 
     border-radius:
       20px;
@@ -739,18 +705,7 @@
 
   .jsMark {
     font-size:
-      2.7rem;
-  }
-
-  .trayInstruction {
-    top:
-      18px;
-
-    right:
-      18px;
-
-    font-size:
-      0.55rem;
+      2.65rem;
   }
 
   .trayWall {
@@ -759,6 +714,25 @@
 
     border-radius:
       15px;
+  }
+
+  .trayInstruction {
+    top:
+      17px;
+
+    right:
+      17px;
+
+    font-size:
+      0.52rem;
+  }
+
+  .trayFloor {
+    left:
+      12px;
+
+    right:
+      12px;
   }
 }
 
