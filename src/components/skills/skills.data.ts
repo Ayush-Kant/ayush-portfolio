@@ -34,6 +34,25 @@ export const TYPESCRIPT_SKILL = {
   },
 } as const;
 
+export const NODEJS_SKILL = {
+  id: "nodejs",
+  name: "Node.js",
+  logo: "Node.js",
+  color: "#339933",
+  detail: {
+    eyebrow: "Where I build with it",
+    title: "Node.js is my backend runtime for web applications.",
+    summary:
+      "I use Node.js for APIs, backend services and full-stack features that connect the frontend to real application logic.",
+    highlights: [
+      "Express APIs and backend services",
+      "Authentication and data-layer integration",
+      "Full-stack JavaScript applications",
+    ],
+  },
+} as const;
+
 export type SkillBoxKind =
   | "javascript"
-  | "typescript";
+  | "typescript"
+  | "nodejs";
