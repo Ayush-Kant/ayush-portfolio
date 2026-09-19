@@ -52,7 +52,26 @@ export const NODEJS_SKILL = {
   },
 } as const;
 
+export const EXPRESS_SKILL = {
+  id: "express",
+  name: "Express",
+  logo: "express",
+  color: "#2D2D2D",
+  detail: {
+    eyebrow: "Where I use it",
+    title: "Express keeps my Node.js APIs focused and lightweight.",
+    summary:
+      "I use Express for REST APIs, middleware, routing and backend services that sit behind my web applications.",
+    highlights: [
+      "REST API routing and controllers",
+      "Middleware and authentication flows",
+      "Service integration with Node.js",
+    ],
+  },
+} as const;
+
 export type SkillBoxKind =
   | "javascript"
   | "typescript"
-  | "nodejs";
+  | "nodejs"
+  | "express";
