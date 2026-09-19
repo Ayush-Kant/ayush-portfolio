@@ -1,21 +1,19 @@
 "use client";
 
-import type {
-  PointerEventHandler,
-  RefObject,
-} from "react";
 import {
   useEffect,
   useRef,
 } from "react";
 
-type BoxPhysics = {
+import type { RefObject } from "react";
+
+type PhysicsState = {
   x: number;
   y: number;
   vx: number;
   vy: number;
   angle: number;
-  angularVelocity: number;
+  spin: number;
   sleeping: boolean;
 };
 
@@ -34,16 +32,16 @@ type UseSingleBoxPhysicsArgs = {
     (dragging: boolean) => void;
 };
 
-const GRAVITY = 2200;
-const RESTITUTION = 0.16;
-const AIR_DRAG = 0.995;
-const FLOOR_FRICTION = 0.82;
-const WALL_BOUNCE = 0.32;
+const GRAVITY = 1800;
+const BOUNCE = 0.15;
+const AIR_DRAG = 0.992;
+const FLOOR_FRICTION = 0.72;
+const WALL_BOUNCE = 0.3;
+const FLOOR_GAP = 14;
 const MAX_SPEED = 1500;
-const SLEEP_SPEED = 18;
+const SLEEP_SPEED = 16;
 const DOUBLE_PRESS_MS = 320;
 const DOUBLE_PRESS_DISTANCE = 18;
-const FLOOR_GAP = 14;
 
 const clamp = (
   value: number,
@@ -60,18 +58,18 @@ export function useSingleBoxPhysics({
   boxRef,
   onDraggingChange,
 }: UseSingleBoxPhysicsArgs) {
-  const physicsRef =
-    useRef<BoxPhysics>({
+  const stateRef =
+    useRef<PhysicsState>({
       x: 0,
       y: 0,
       vx: 0,
       vy: 0,
       angle: 0,
-      angularVelocity: 0,
+      spin: 0,
       sleeping: true,
     });
 
-  const draggingRef =
+  const dragRef =
     useRef<{
       pointerId: number;
       offsetX: number;
@@ -84,130 +82,65 @@ export function useSingleBoxPhysics({
       null
     );
 
-  const frameRef =
-    useRef<number | null>(null);
-
-  const sizeRef =
-    useRef({
-      trayWidth: 0,
-      trayHeight: 0,
-      boxWidth: 96,
-      boxHeight: 96,
-    });
-
   useEffect(() => {
-    const tray =
-      trayRef.current;
+    const tray = trayRef.current;
+    const box = boxRef.current;
 
-    const box =
-      boxRef.current;
+    if (!tray || !box) return;
 
-    if (!tray || !box) {
-      return;
-    }
+    const state = stateRef.current;
+    let trayWidth = 0;
+    let trayHeight = 0;
+    let boxWidth = 0;
+    let boxHeight = 0;
+    let raf = 0;
+    let lastFrame = performance.now();
 
-    const physics =
-      physicsRef.current;
-
-    const syncSize = () => {
+    const measure = () => {
       const trayRect =
         tray.getBoundingClientRect();
-
       const boxRect =
         box.getBoundingClientRect();
 
-      sizeRef.current = {
-        trayWidth:
-          trayRect.width,
-        trayHeight:
-          trayRect.height,
-        boxWidth:
-          boxRect.width,
-        boxHeight:
-          boxRect.height,
-      };
+      trayWidth = trayRect.width;
+      trayHeight = trayRect.height;
+      boxWidth = boxRect.width;
+      boxHeight = boxRect.height;
 
-      physics.x =
-        clamp(
-          physics.x,
-          0,
-          Math.max(
-            0,
-            trayRect.width -
-              boxRect.width
-          )
-        );
+      state.x = clamp(
+        state.x,
+        0,
+        Math.max(0, trayWidth - boxWidth)
+      );
 
-      physics.y =
-        clamp(
-          physics.y,
+      state.y = clamp(
+        state.y,
+        0,
+        Math.max(
           0,
-          Math.max(
-            0,
-            trayRect.height -
-              boxRect.height -
-              FLOOR_GAP
-          )
-        );
+          trayHeight -
+            boxHeight -
+            FLOOR_GAP
+        )
+      );
     };
 
     const render = () => {
       box.style.transform =
-        "translate3d(" +
-        physics.x +
-        "px, " +
-        physics.y +
-        "px, 0) rotate(" +
-        physics.angle +
-        "rad)";
+        `translate3d(${state.x}px, ${state.y}px, 0) rotate(${state.angle}rad)`;
     };
 
-    const settleInitialPosition =
-      () => {
-        const {
-          trayWidth,
-          trayHeight,
-          boxWidth,
-          boxHeight,
-        } = sizeRef.current;
+    const floorY = () =>
+      Math.max(
+        0,
+        trayHeight -
+          boxHeight -
+          FLOOR_GAP
+      );
 
-        physics.x =
-          Math.max(
-            0,
-            (trayWidth -
-              boxWidth) *
-              0.24
-          );
-
-        physics.y =
-          Math.max(
-            0,
-            trayHeight * 0.26
-          );
-
-        physics.vx = 0;
-        physics.vy = 0;
-        physics.angle = 0;
-        physics.angularVelocity = 0;
-        physics.sleeping = true;
-
-        render();
-      };
-
-    syncSize();
-    settleInitialPosition();
-
-    const resizeObserver =
-      new ResizeObserver(() => {
-        syncSize();
-        render();
-      });
-
-    resizeObserver.observe(tray);
-
-    const recordSample = (
+    const pointFromEvent = (
       event: PointerEvent
-    ) => {
+    ): PointerSample => {
       const rect =
         tray.getBoundingClientRect();
 
@@ -223,462 +156,382 @@ export function useSingleBoxPhysics({
       };
     };
 
-    const beginDrag = (
+    const release = (
       event: PointerEvent
     ) => {
+      const drag = dragRef.current;
+
       if (
-        event.button !== 0
+        !drag ||
+        drag.pointerId !==
+          event.pointerId
       ) {
         return;
       }
 
-      const sample =
-        recordSample(event);
+      const last =
+        pointFromEvent(event);
+
+      const samples = [
+        ...drag.samples,
+        last,
+      ];
+
+      const first =
+        samples[0];
+
+      const dt = Math.max(
+        16,
+        last.time - first.time
+      );
+
+      state.vx = clamp(
+        ((last.x - first.x) /
+          dt) *
+          1000,
+        -MAX_SPEED,
+        MAX_SPEED
+      );
+
+      state.vy = clamp(
+        ((last.y - first.y) /
+          dt) *
+          1000,
+        -MAX_SPEED,
+        MAX_SPEED
+      );
+
+      state.spin = clamp(
+        state.vx * 0.00042,
+        -0.7,
+        0.7
+      );
+
+      state.sleeping = false;
+      dragRef.current = null;
+      lastPressRef.current = null;
+
+      try {
+        box.releasePointerCapture(
+          event.pointerId
+        );
+      } catch {
+        // Capture may already be released.
+      }
+
+      box.style.zIndex = "";
+      onDraggingChange(false);
+    };
+
+    const onDown = (
+      event: PointerEvent
+    ) => {
+      if (event.button !== 0) return;
+
+      measure();
+
+      const point =
+        pointFromEvent(event);
 
       const last =
         lastPressRef.current;
 
-      const isDoublePress =
+      const doublePress =
         !!last &&
-        sample.time -
-          last.time <=
+        point.time - last.time <=
           DOUBLE_PRESS_MS &&
         Math.hypot(
-          sample.x - last.x,
-          sample.y - last.y
+          point.x - last.x,
+          point.y - last.y
         ) <=
           DOUBLE_PRESS_DISTANCE;
 
       lastPressRef.current =
-        sample;
+        point;
 
-      if (!isDoublePress) {
-        return;
-      }
+      if (!doublePress) return;
 
-      const pointInside =
-        sample.x >= physics.x &&
-        sample.x <=
-          physics.x +
-            sizeRef.current.boxWidth &&
-        sample.y >= physics.y &&
-        sample.y <=
-          physics.y +
-            sizeRef.current.boxHeight;
+      const inside =
+        point.x >= state.x &&
+        point.x <=
+          state.x + boxWidth &&
+        point.y >= state.y &&
+        point.y <=
+          state.y + boxHeight;
 
-      if (!pointInside) {
-        return;
-      }
+      if (!inside) return;
 
       event.preventDefault();
 
-      const dragging =
-        {
-          pointerId:
-            event.pointerId,
-          offsetX:
-            sample.x -
-            physics.x,
-          offsetY:
-            sample.y -
-            physics.y,
-          samples: [sample],
-        };
+      state.vx = 0;
+      state.vy = 0;
+      state.spin = 0;
+      state.sleeping = false;
 
-      draggingRef.current =
-        dragging;
-
-      physics.vx = 0;
-      physics.vy = 0;
-      physics.angularVelocity = 0;
-      physics.sleeping = false;
+      dragRef.current = {
+        pointerId:
+          event.pointerId,
+        offsetX:
+          point.x - state.x,
+        offsetY:
+          point.y - state.y,
+        samples: [point],
+      };
 
       box.setPointerCapture?.(
         event.pointerId
       );
 
       box.style.zIndex = "10";
-
       onDraggingChange(true);
     };
 
-    const moveDrag = (
+    const onMove = (
       event: PointerEvent
     ) => {
-      const dragging =
-        draggingRef.current;
+      const drag = dragRef.current;
 
       if (
-        !dragging ||
-        dragging.pointerId !==
+        !drag ||
+        drag.pointerId !==
           event.pointerId
       ) {
         return;
       }
 
-      const sample =
-        recordSample(event);
+      const point =
+        pointFromEvent(event);
 
-      const {
-        trayWidth,
-        trayHeight,
-        boxWidth,
-        boxHeight,
-      } = sizeRef.current;
-
-      physics.x =
-        clamp(
-          sample.x -
-            dragging.offsetX,
-          0,
-          Math.max(
-            0,
-            trayWidth -
-              boxWidth
-          )
-        );
-
-      physics.y =
-        clamp(
-          sample.y -
-            dragging.offsetY,
-          0,
-          Math.max(
-            0,
-            trayHeight -
-              boxHeight -
-              FLOOR_GAP
-          )
-        );
-
-      dragging.samples.push(
-        sample
+      state.x = clamp(
+        point.x - drag.offsetX,
+        0,
+        Math.max(0, trayWidth - boxWidth)
       );
 
-      const cutoff =
-        sample.time - 90;
+      state.y = clamp(
+        point.y - drag.offsetY,
+        0,
+        floorY()
+      );
 
-      dragging.samples =
-        dragging.samples.filter(
-          (item) =>
-            item.time >= cutoff
-        );
+      drag.samples.push(point);
+
+      const cutoff =
+        point.time - 90;
+
+      while (
+        drag.samples.length > 1 &&
+        drag.samples[0].time < cutoff
+      ) {
+        drag.samples.shift();
+      }
 
       render();
     };
 
-    const releaseDrag = (
+    const onUp = (
       event: PointerEvent
-    ) => {
-      const dragging =
-        draggingRef.current;
+    ) => release(event);
 
-      if (
-        !dragging ||
-        dragging.pointerId !==
-          event.pointerId
-      ) {
-        return;
-      }
+    const onResize =
+      new ResizeObserver(() => {
+        measure();
+        render();
+      });
 
-      const sample =
-        recordSample(event);
+    onResize.observe(tray);
 
-      const samples = [
-        ...dragging.samples,
-        sample,
-      ];
+    box.addEventListener(
+      "pointerdown",
+      onDown
+    );
 
-      const first =
-        samples[0];
+    window.addEventListener(
+      "pointermove",
+      onMove,
+      { passive: true }
+    );
 
-      const last =
-        samples[
-          samples.length - 1
-        ];
+    window.addEventListener(
+      "pointerup",
+      onUp
+    );
 
-      const dt =
-        Math.max(
-          16,
-          last.time -
-            first.time
-        );
+    window.addEventListener(
+      "pointercancel",
+      onUp
+    );
 
-      const velocityScale =
-        1000 / dt;
+    measure();
 
-      physics.vx =
-        clamp(
-          (last.x - first.x) *
-            velocityScale,
-          -MAX_SPEED,
-          MAX_SPEED
-        );
-
-      physics.vy =
-        clamp(
-          (last.y - first.y) *
-            velocityScale,
-          -MAX_SPEED,
-          MAX_SPEED
-        );
-
-      physics.angularVelocity =
-        clamp(
-          physics.vx * 0.00045,
-          -0.7,
-          0.7
-        );
-
-      physics.sleeping = false;
-
-      draggingRef.current =
-        null;
-
-      box.releasePointerCapture?.(
-        event.pointerId
+    state.x =
+      Math.max(
+        0,
+        (trayWidth - boxWidth) *
+          0.22
       );
 
-      box.style.zIndex = "";
+    state.y =
+      Math.max(
+        0,
+        floorY() -
+          42
+      );
 
-      lastPressRef.current =
-        null;
-
-      onDraggingChange(false);
-    };
-
-    let lastFrame =
-      performance.now();
+    render();
 
     const tick = (
       time: number
     ) => {
-      frameRef.current =
-        requestAnimationFrame(
-          tick
-        );
-
       const dt =
         Math.min(
           0.032,
           Math.max(
             0,
-            (time -
-              lastFrame) /
+            (time - lastFrame) /
               1000
           )
         );
 
       lastFrame = time;
 
-      if (
-        draggingRef.current
-      ) {
-        render();
-        return;
-      }
+      if (!dragRef.current &&
+          !state.sleeping) {
+        state.vy +=
+          GRAVITY * dt;
 
-      if (physics.sleeping) {
-        return;
-      }
-
-      physics.vy +=
-        GRAVITY * dt;
-
-      physics.vx *= Math.pow(
-        AIR_DRAG,
-        dt * 60
-      );
-
-      physics.x +=
-        physics.vx * dt;
-
-      physics.y +=
-        physics.vy * dt;
-
-      physics.angle +=
-        physics.angularVelocity *
-        dt;
-
-      const {
-        trayWidth,
-        trayHeight,
-        boxWidth,
-        boxHeight,
-      } = sizeRef.current;
-
-      const maxX =
-        Math.max(
-          0,
-          trayWidth -
-            boxWidth
+        state.vx *= Math.pow(
+          AIR_DRAG,
+          dt * 60
         );
 
-      const floorY =
-        Math.max(
-          0,
-          trayHeight -
-            boxHeight -
-            FLOOR_GAP
-        );
+        state.x +=
+          state.vx * dt;
 
-      if (physics.x < 0) {
-        physics.x = 0;
-        physics.vx =
-          Math.abs(
-            physics.vx
-          ) *
-          WALL_BOUNCE;
-      }
+        state.y +=
+          state.vy * dt;
 
-      if (
-        physics.x >
-        maxX
-      ) {
-        physics.x = maxX;
-        physics.vx =
-          -Math.abs(
-            physics.vx
-          ) *
-          WALL_BOUNCE;
-      }
+        state.angle +=
+          state.spin * dt;
 
-      if (physics.y < 0) {
-        physics.y = 0;
-        physics.vy =
-          Math.abs(
-            physics.vy
-          ) *
-          WALL_BOUNCE;
-      }
+        const maxX =
+          Math.max(
+            0,
+            trayWidth - boxWidth
+          );
 
-      if (
-        physics.y >=
-        floorY
-      ) {
-        physics.y = floorY;
+        const floor =
+          floorY();
+
+        if (state.x < 0) {
+          state.x = 0;
+          state.vx =
+            Math.abs(
+              state.vx
+            ) *
+            WALL_BOUNCE;
+        } else if (
+          state.x > maxX
+        ) {
+          state.x = maxX;
+          state.vx =
+            -Math.abs(
+              state.vx
+            ) *
+            WALL_BOUNCE;
+        }
+
+        if (state.y >= floor) {
+          state.y = floor;
+
+          if (
+            Math.abs(state.vy) >
+            40
+          ) {
+            state.vy =
+              -Math.abs(
+                state.vy
+              ) *
+              BOUNCE;
+
+            state.vx *=
+              FLOOR_FRICTION;
+
+            state.spin =
+              clamp(
+                state.spin +
+                  state.vx *
+                    0.0002,
+                -0.7,
+                0.7
+              );
+          } else {
+            state.vy = 0;
+            state.vx *=
+              0.64;
+            state.spin *=
+              0.5;
+          }
+        }
 
         if (
-          Math.abs(
-            physics.vy
-          ) >
-          42
+          Math.abs(state.vx) <
+            SLEEP_SPEED &&
+          Math.abs(state.vy) <
+            SLEEP_SPEED &&
+          Math.abs(state.spin) <
+            0.03 &&
+          state.y >=
+            floor - 0.5
         ) {
-          physics.vy =
-            -Math.abs(
-              physics.vy
-            ) *
-            RESTITUTION;
-
-          physics.vx *=
-            FLOOR_FRICTION;
-
-          physics.angularVelocity =
-            clamp(
-              physics.angularVelocity +
-                physics.vx *
-                  0.00025,
-              -0.75,
-              0.75
-            );
-        } else {
-          physics.vy = 0;
-
-          physics.vx *=
-            0.72;
-
-          physics.angularVelocity *=
-            0.55;
+          state.vx = 0;
+          state.vy = 0;
+          state.spin = 0;
+          state.y = floor;
+          state.sleeping = true;
         }
+
+        render();
       }
 
-      if (
-        Math.abs(
-          physics.vx
-        ) <
-          SLEEP_SPEED &&
-        Math.abs(
-          physics.vy
-        ) <
-          SLEEP_SPEED &&
-        Math.abs(
-          physics.angularVelocity
-        ) <
-          0.035 &&
-        physics.y >=
-          floorY -
-            0.5
-      ) {
-        physics.vx = 0;
-        physics.vy = 0;
-        physics.angularVelocity = 0;
-        physics.y = floorY;
-        physics.sleeping = true;
-      }
-
-      render();
+      raf =
+        requestAnimationFrame(
+          tick
+        );
     };
 
-    frameRef.current =
+    raf =
       requestAnimationFrame(
         tick
       );
 
-    window.addEventListener(
-      "pointermove",
-      moveDrag,
-      { passive: true }
-    );
-
-    window.addEventListener(
-      "pointerup",
-      releaseDrag
-    );
-
-    window.addEventListener(
-      "pointercancel",
-      releaseDrag
-    );
-
-    box.addEventListener(
-      "pointerdown",
-      beginDrag
-    );
-
     return () => {
-      resizeObserver.disconnect();
+      cancelAnimationFrame(
+        raf
+      );
+
+      onResize.disconnect();
+
+      box.removeEventListener(
+        "pointerdown",
+        onDown
+      );
 
       window.removeEventListener(
         "pointermove",
-        moveDrag
+        onMove
       );
 
       window.removeEventListener(
         "pointerup",
-        releaseDrag
+        onUp
       );
 
       window.removeEventListener(
         "pointercancel",
-        releaseDrag
+        onUp
       );
 
-      box.removeEventListener(
-        "pointerdown",
-        beginDrag
-      );
-
-      if (
-        frameRef.current !==
-        null
-      ) {
-        cancelAnimationFrame(
-          frameRef.current
-        );
-      }
-
-      draggingRef.current =
-        null;
       onDraggingChange(false);
     };
   }, [
@@ -686,18 +539,4 @@ export function useSingleBoxPhysics({
     onDraggingChange,
     trayRef,
   ]);
-
-  const onPointerDown:
-    PointerEventHandler<HTMLButtonElement> =
-    () => {
-      // The hook owns the native
-      // pointer listener so that
-      // the drag lifecycle stays
-      // outside the presentational
-      // component.
-    };
-
-  return {
-    onPointerDown,
-  };
 }
