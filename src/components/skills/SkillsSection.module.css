@@ -6,7 +6,7 @@
 }
 
 .sectionInner {
-  width: min(1280px, 100%);
+  width: min(1440px, 100%);
   margin-inline: auto;
 }
 
@@ -54,10 +54,10 @@
 .playgroundGrid {
   display: grid;
   grid-template-columns:
-    minmax(0, 1.16fr)
-    minmax(320px, .84fr);
-  gap: clamp(22px, 4vw, 54px);
-  align-items: center;
+    minmax(0, 1.42fr)
+    minmax(330px, .78fr);
+  gap: 0;
+  align-items: start;
 }
 
 
@@ -119,7 +119,8 @@
   height: clamp(500px, 58vh, 580px);
   overflow: hidden;
   border: 1px solid rgba(194, 169, 255, .16);
-  border-radius: 24px;
+  border-right-color: rgba(194, 169, 255, .1);
+  border-radius: 24px 0 0 24px;
   background:
     radial-gradient(
       circle at 72% 24%,
@@ -253,11 +254,13 @@
   position: relative;
   height: clamp(500px, 58vh, 580px);
   min-height: 0;
+  margin-top: 54px;
   display: grid;
   align-items: center;
   overflow: hidden;
   border: 1px solid rgba(194, 169, 255, .13);
-  border-radius: 24px;
+  border-left-color: rgba(194, 169, 255, .08);
+  border-radius: 0 24px 24px 0;
   background:
     radial-gradient(
       circle at 50% 78%,
@@ -270,7 +273,44 @@
       rgba(8, 7, 13, .78)
     );
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, .035);
+    inset 0 1px 0 rgba(255, 255, 255, .035),
+    inset 1px 0 0 rgba(194, 169, 255, .045);
+}
+
+.detailPanel::before {
+  content: "";
+  position: absolute;
+  left: -1px;
+  top: 50%;
+  z-index: 4;
+  width: 18px;
+  height: 72px;
+  transform: translateY(-50%);
+  border-left: 1px solid rgba(195, 165, 255, .18);
+  border-top: 1px solid rgba(195, 165, 255, .08);
+  border-bottom: 1px solid rgba(195, 165, 255, .08);
+  border-radius: 12px 0 0 12px;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(162, 118, 255, .16),
+      transparent
+    );
+  box-shadow:
+    0 0 22px rgba(162, 118, 255, .1);
+  pointer-events: none;
+}
+
+.detailPanel[data-visible="true"]::before {
+  border-left-color: rgba(247, 223, 30, .62);
+  background:
+    linear-gradient(
+      90deg,
+      rgba(247, 223, 30, .18),
+      transparent
+    );
+  box-shadow:
+    0 0 24px rgba(247, 223, 30, .16);
 }
 
 .detailPanelInner {
@@ -464,10 +504,14 @@
 @media (max-width: 900px) {
   .playgroundGrid {
     grid-template-columns: 1fr;
+    gap: 18px;
   }
 
   .detailPanel {
+    margin-top: 0;
     min-height: 360px;
+    border-radius: 24px;
+    border-left-color: rgba(194, 169, 255, .13);
   }
 }
 
