@@ -1,3 +1,19 @@
+export type SkillBoxKind =
+  | "javascript"
+  | "typescript"
+  | "nodejs"
+  | "express";
+
+export const SKILL_LOGOS = {
+  javascript: "/skills/javascript.png",
+  typescript: "/skills/typescript.png",
+  nodejs: "/skills/node.png",
+  express: "/skills/express.png",
+} as const satisfies Record<
+  SkillBoxKind,
+  string
+>;
+
 export const JAVASCRIPT_SKILL = {
   id: "javascript",
   name: "JavaScript",
@@ -69,9 +85,3 @@ export const EXPRESS_SKILL = {
     ],
   },
 } as const;
-
-export type SkillBoxKind =
-  | "javascript"
-  | "typescript"
-  | "nodejs"
-  | "express";
