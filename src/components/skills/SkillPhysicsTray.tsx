@@ -4,14 +4,14 @@ import {
   useMemo,
   useRef,
   useState,
+  type RefObject,
 } from "react";
 
 import styles from "./SkillsSection.module.css";
 import {
-  EXPRESS_SKILL,
-  JAVASCRIPT_SKILL,
-  NODEJS_SKILL,
-  TYPESCRIPT_SKILL,
+  SKILLS,
+  type SkillBoxKind,
+  type SkillDefinition,
 } from "./skills.data";
 import SkillBox from "./SkillBox";
 import {
@@ -19,93 +19,84 @@ import {
   useSkillPhysicsWorld,
 } from "./useSkillPhysicsWorld";
 
-type InteractionState =
-  | "ready"
-  | "dragging";
+type InteractionState = "ready" | "dragging";
 
 export default function SkillPhysicsTray() {
-  const trayRef =
-    useRef<HTMLDivElement | null>(null);
+  const trayRef = useRef<HTMLDivElement | null>(null);
 
-  const jsBoxRef =
-    useRef<HTMLButtonElement | null>(null);
+  const boxRefs = useRef<
+    Partial<Record<SkillBoxKind, HTMLButtonElement | null>>
+  >({});
 
-  const tsBoxRef =
-    useRef<HTMLButtonElement | null>(null);
+  const setBoxRefs = useMemo(
+    () =>
+      Object.fromEntries(
+        SKILLS.map((skill) => [
+          skill.id,
+          (node: HTMLButtonElement | null) => {
+            boxRefs.current[skill.id] = node;
+          },
+        ])
+      ) as Record<
+        SkillBoxKind,
+        (node: HTMLButtonElement | null) => void
+      >,
+    []
+  );
 
-  const nodeBoxRef =
-    useRef<HTMLButtonElement | null>(null);
+  const boxRefObjects = useMemo(
+    () =>
+      Object.fromEntries(
+        SKILLS.map((skill) => [
+          skill.id,
+          {
+            get current() {
+              return boxRefs.current[skill.id] ?? null;
+            },
+          },
+        ])
+      ) as Record<
+        SkillBoxKind,
+        RefObject<HTMLButtonElement | null>
+      >,
+    []
+  );
 
-  const expressBoxRef =
-    useRef<HTMLButtonElement | null>(null);
-
-  const [jsInteraction, setJsInteraction] =
-    useState<InteractionState>("ready");
-
-  const [tsInteraction, setTsInteraction] =
-    useState<InteractionState>("ready");
-
-  const [nodeInteraction, setNodeInteraction] =
-    useState<InteractionState>("ready");
-
-  const [expressInteraction, setExpressInteraction] =
-    useState<InteractionState>("ready");
+  const [draggingSkill, setDraggingSkill] =
+    useState<SkillDefinition | null>(null);
 
   const [activeSkill, setActiveSkill] =
-    useState<
-      | typeof JAVASCRIPT_SKILL
-      | typeof TYPESCRIPT_SKILL
-      | typeof NODEJS_SKILL
-      | typeof EXPRESS_SKILL
-      | null
-    >(null);
+    useState<SkillDefinition | null>(null);
 
   const physicsBodies =
     useMemo<readonly SkillPhysicsBodyConfig[]>(
-      () => [
-        {
-          id: "javascript",
-          boxRef: jsBoxRef,
-          initialXPercent: 0.14,
-          onStateChange: setJsInteraction,
-        },
-        {
-          id: "typescript",
-          boxRef: tsBoxRef,
-          initialXPercent: 0.42,
-          onStateChange: setTsInteraction,
-        },
-        {
-          id: "nodejs",
-          boxRef: nodeBoxRef,
-          initialXPercent: 0.68,
-          onStateChange: setNodeInteraction,
-        },
-        {
-          id: "express",
-          boxRef: expressBoxRef,
-          initialXPercent: 0.84,
-          onStateChange: setExpressInteraction,
-        },
-      ],
-      []
+      () =>
+        SKILLS.map((skill, index) => ({
+          id: skill.id,
+          boxRef: boxRefObjects[skill.id],
+          initialXPercent:
+            SKILLS.length === 1
+              ? 0.5
+              : 0.04 +
+                (index / (SKILLS.length - 1)) *
+                  0.92,
+          onStateChange: (
+            state: InteractionState
+          ) => {
+            setDraggingSkill(
+              state === "dragging"
+                ? skill
+                : null
+            );
+          },
+        })),
+      [boxRefObjects]
     );
 
   useSkillPhysicsWorld({
     trayRef,
     bodies: physicsBodies,
   });
-
-  const draggingSkill =
-    jsInteraction === "dragging"
-      ? JAVASCRIPT_SKILL.name
-      : tsInteraction === "dragging"
-        ? TYPESCRIPT_SKILL.name
-        : nodeInteraction === "dragging"
-          ? NODEJS_SKILL.name
-          : expressInteraction === "dragging"
-            ? EXPRESS_SKILL.name
-            : null;
 
   return (
     <div className={styles.skillsPlayground}>
@@ -114,7 +105,7 @@ export default function SkillPhysicsTray() {
           <div className={styles.trayHeader}>
             <div>
               <p className={styles.trayTitle}>
-                JavaScript + TypeScript + Node.js + Express
+                Full-stack tech stack
               </p>
 
               <p className={styles.trayHint}>
@@ -131,7 +122,7 @@ export default function SkillPhysicsTray() {
               }
             >
               {draggingSkill
-                ? draggingSkill + " HELD"
+                ? draggingSkill.name + " HELD"
                 : "READY"}
             </span>
           </div>
@@ -162,57 +153,19 @@ export default function SkillPhysicsTray() {
               hold · move · release
             </div>
 
-            <SkillBox
-              ref={jsBoxRef}
-              skill="javascript"
-              isDragging={
-                jsInteraction === "dragging"
-              }
-              onDoubleClick={() =>
-                setActiveSkill(
-                  JAVASCRIPT_SKILL
-                )
-              }
-            />
-
-            <SkillBox
-              ref={tsBoxRef}
-              skill="typescript"
-              isDragging={
-                tsInteraction === "dragging"
-              }
-              onDoubleClick={() =>
-                setActiveSkill(
-                  TYPESCRIPT_SKILL
-                )
-              }
-            />
-
-            <SkillBox
-              ref={nodeBoxRef}
-              skill="nodejs"
-              isDragging={
-                nodeInteraction === "dragging"
-              }
-              onDoubleClick={() =>
-                setActiveSkill(
-                  NODEJS_SKILL
-                )
-              }
-            />
-
-            <SkillBox
-              ref={expressBoxRef}
-              skill="express"
-              isDragging={
-                expressInteraction === "dragging"
-              }
-              onDoubleClick={() =>
-                setActiveSkill(
-                  EXPRESS_SKILL
-                )
-              }
-            />
+            {SKILLS.map((skill) => (
+              <SkillBox
+                key={skill.id}
+                ref={setBoxRefs[skill.id]}
+                skill={skill.id}
+                isDragging={
+                  draggingSkill?.id === skill.id
+                }
+                onDoubleClick={() =>
+                  setActiveSkill(skill)
+                }
+              />
+            ))}
 
             <div
               className={styles.trayFloor}
@@ -224,9 +177,7 @@ export default function SkillPhysicsTray() {
         <aside
           className={styles.detailPanel}
           data-visible={
-            activeSkill
-              ? "true"
-              : "false"
+            activeSkill ? "true" : "false"
           }
           style={{
             ["--skill-accent" as string]:
@@ -243,51 +194,41 @@ export default function SkillPhysicsTray() {
           <div
             className={styles.detailPanelInner}
           >
-            <p
-              className={styles.detailEyebrow}
-            >
+            <p className={styles.detailEyebrow}>
               {activeSkill
                 ? activeSkill.detail.eyebrow
                 : "Skill unlocked"}
             </p>
 
-            <h3
-              className={styles.detailTitle}
-            >
+            <h3 className={styles.detailTitle}>
               {activeSkill
                 ? activeSkill.detail.title
                 : "Double-click a box"}
             </h3>
 
-            <p
-              className={styles.detailSummary}
-            >
+            <p className={styles.detailSummary}>
               {activeSkill
                 ? activeSkill.detail.summary
-                : "Double-click JavaScript, TypeScript, Node.js or Express to reveal how I use it."}
+                : "Double-click any skill box to reveal how I use it."}
             </p>
 
-            <div
-              className={styles.detailList}
-            >
+            <div className={styles.detailList}>
               {(
                 activeSkill
                   ? activeSkill.detail.highlights
                   : [
-                      "JavaScript, TypeScript, Node.js and Express",
+                      "Frontend, backend, cloud and infrastructure",
                       "Press + hold to move",
                       "Release to drop",
                     ]
-              ).map(
-                (item) => (
-                  <span
-                    key={item}
-                    className={styles.detailItem}
-                  >
-                    {item}
-                  </span>
-                )
-              )}
+              ).map((item) => (
+                <span
+                  key={item}
+                  className={styles.detailItem}
+                >
+                  {item}
+                </span>
+              ))}
             </div>
 
             {activeSkill && (
