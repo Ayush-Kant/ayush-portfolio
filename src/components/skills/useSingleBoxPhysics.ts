@@ -44,8 +44,10 @@ const WALL_RESTITUTION = 0.32;
 const MAX_RELEASE_SPEED = 1350;
 const SLEEP_SPEED = 14;
 
-const DOUBLE_PRESS_MS = 360;
-const DOUBLE_PRESS_DISTANCE = 24;
+// A forgiving double-click window that still feels
+// like a normal mouse double-click.
+const DOUBLE_PRESS_WINDOW_MS = 550;
+const DOUBLE_PRESS_DISTANCE = 40;
 
 const clamp = (
   value: number,
@@ -76,6 +78,11 @@ export function useSingleBoxPhysics({
   const pressRef =
     useRef<Sample | null>(null);
 
+  const armTimerRef =
+    useRef<ReturnType<
+      typeof setTimeout
+    > | null>(null);
+
   const dragRef =
     useRef<{
       pointerId: number;
@@ -100,6 +107,52 @@ export function useSingleBoxPhysics({
     let frame = 0;
     let previousTime =
       performance.now();
+
+    const clearArmedState = () => {
+      if (
+        armTimerRef.current !==
+        null
+      ) {
+        clearTimeout(
+          armTimerRef.current
+        );
+      }
+
+      armTimerRef.current = null;
+      pressRef.current = null;
+      onStateChange("ready");
+    };
+
+    const armForDoubleClick = (
+      point: Sample
+    ) => {
+      if (
+        armTimerRef.current !==
+        null
+      ) {
+        clearTimeout(
+          armTimerRef.current
+        );
+      }
+
+      pressRef.current =
+        point;
+
+      onStateChange("armed");
+
+      armTimerRef.current =
+        setTimeout(() => {
+          armTimerRef.current =
+            null;
+
+          // Only expire if the user has not
+          // already started dragging.
+          if (!dragRef.current) {
+            pressRef.current = null;
+            onStateChange("ready");
+          }
+        }, DOUBLE_PRESS_WINDOW_MS);
+    };
 
     const measure = () => {
       const trayRect =
@@ -234,6 +287,17 @@ export function useSingleBoxPhysics({
       dragRef.current = null;
       pressRef.current = null;
 
+      if (
+        armTimerRef.current !==
+        null
+      ) {
+        clearTimeout(
+          armTimerRef.current
+        );
+        armTimerRef.current =
+          null;
+      }
+
       try {
         box.releasePointerCapture(
           event.pointerId
@@ -242,6 +306,7 @@ export function useSingleBoxPhysics({
         // Pointer capture may already be gone.
       }
 
+      box.style.zIndex = "";
       onStateChange("ready");
     };
 
@@ -283,6 +348,19 @@ export function useSingleBoxPhysics({
         ],
       };
 
+      if (
+        armTimerRef.current !==
+        null
+      ) {
+        clearTimeout(
+          armTimerRef.current
+        );
+        armTimerRef.current =
+          null;
+      }
+
+      pressRef.current = null;
+
       try {
         box.setPointerCapture(
           event.pointerId
@@ -319,7 +397,7 @@ export function useSingleBoxPhysics({
         !!previous &&
         point.time -
           previous.time <=
-          DOUBLE_PRESS_MS &&
+          DOUBLE_PRESS_WINDOW_MS &&
         Math.hypot(
           point.x -
             previous.x,
@@ -328,16 +406,17 @@ export function useSingleBoxPhysics({
         ) <=
           DOUBLE_PRESS_DISTANCE;
 
-      pressRef.current =
-        point;
-
-      if (!isDouble) {
-        onStateChange("armed");
+      if (isDouble) {
+        startDrag(
+          event,
+          point
+        );
         return;
       }
 
-      startDrag(
-        event,
+      // Any click that isn't a valid second click
+      // becomes the new first click.
+      armForDoubleClick(
         point
       );
     };
@@ -400,12 +479,9 @@ export function useSingleBoxPhysics({
       event: PointerEvent
     ) => {
       stopDrag(event);
-
-      if (!dragRef.current) {
-        onStateChange(
-          "ready"
-        );
-      }
+      // Do not clear "armed" here.
+      // The first click is intentionally kept armed
+      // until the second pointerdown or timeout.
     };
 
     const onPointerCancel = (
@@ -424,11 +500,7 @@ export function useSingleBoxPhysics({
         p.spin = 0;
         p.sleeping = true;
         dragRef.current = null;
-        pressRef.current = null;
-
-        onStateChange(
-          "ready"
-        );
+        clearArmedState();
       }
     };
 
@@ -640,6 +712,15 @@ export function useSingleBoxPhysics({
 
       resize.disconnect();
 
+      if (
+        armTimerRef.current !==
+        null
+      ) {
+        clearTimeout(
+          armTimerRef.current
+        );
+      }
+
       window.removeEventListener(
         "pointermove",
         onPointerMove
@@ -661,6 +742,7 @@ export function useSingleBoxPhysics({
       );
 
       dragRef.current = null;
+      pressRef.current = null;
     };
   }, [
     boxRef,
