@@ -1,35 +1,18 @@
 "use client";
 
-import {
-  useEffect,
-  useRef,
-} from "react";
+import { useEffect, useRef, type RefObject } from "react";
 
-import type { RefObject } from "react";
-
-type PhysicsState = {
-  x: number;
-  y: number;
-  vx: number;
-  vy: number;
-  angle: number;
-  spin: number;
-  sleeping: boolean;
+type Physics = {
+  x: number; y: number; vx: number; vy: number;
+  angle: number; spin: number; sleeping: boolean;
 };
 
-type PointerSample = {
-  x: number;
-  y: number;
-  time: number;
-};
+type Sample = { x: number; y: number; time: number };
 
-type UseSingleBoxPhysicsArgs = {
-  trayRef:
-    RefObject<HTMLDivElement | null>;
-  boxRef:
-    RefObject<HTMLButtonElement | null>;
-  onDraggingChange:
-    (dragging: boolean) => void;
+type Args = {
+  trayRef: RefObject<HTMLDivElement | null>;
+  boxRef: RefObject<HTMLButtonElement | null>;
+  onDraggingChange: (dragging: boolean) => void;
 };
 
 const GRAVITY = 1800;
@@ -43,500 +26,212 @@ const SLEEP_SPEED = 16;
 const DOUBLE_PRESS_MS = 320;
 const DOUBLE_PRESS_DISTANCE = 18;
 
-const clamp = (
-  value: number,
-  min: number,
-  max: number
-) =>
-  Math.max(
-    min,
-    Math.min(max, value)
-  );
+const clamp = (n: number, min: number, max: number) =>
+  Math.max(min, Math.min(max, n));
 
 export function useSingleBoxPhysics({
   trayRef,
   boxRef,
   onDraggingChange,
-}: UseSingleBoxPhysicsArgs) {
-  const stateRef =
-    useRef<PhysicsState>({
-      x: 0,
-      y: 0,
-      vx: 0,
-      vy: 0,
-      angle: 0,
-      spin: 0,
-      sleeping: true,
-    });
-
-  const dragRef =
-    useRef<{
-      pointerId: number;
-      offsetX: number;
-      offsetY: number;
-      samples: PointerSample[];
-    } | null>(null);
-
-  const lastPressRef =
-    useRef<PointerSample | null>(
-      null
-    );
+}: Args) {
+  const state = useRef<Physics>({
+    x: 0, y: 0, vx: 0, vy: 0,
+    angle: 0, spin: 0, sleeping: true,
+  });
+  const drag = useRef<{
+    pointerId: number;
+    offsetX: number;
+    offsetY: number;
+    samples: Sample[];
+  } | null>(null);
+  const lastPress = useRef<Sample | null>(null);
 
   useEffect(() => {
     const tray = trayRef.current;
     const box = boxRef.current;
-
     if (!tray || !box) return;
 
-    const state = stateRef.current;
-    let trayWidth = 0;
-    let trayHeight = 0;
-    let boxWidth = 0;
-    let boxHeight = 0;
-    let raf = 0;
-    let lastFrame = performance.now();
+    let trayW = 0, trayH = 0, boxW = 0, boxH = 0;
+    let raf = 0, lastFrame = performance.now();
+    const p = state.current;
 
     const measure = () => {
-      const trayRect =
-        tray.getBoundingClientRect();
-      const boxRect =
-        box.getBoundingClientRect();
+      const tr = tray.getBoundingClientRect();
+      const br = box.getBoundingClientRect();
+      trayW = tr.width; trayH = tr.height;
+      boxW = br.width; boxH = br.height;
+      p.x = clamp(p.x, 0, Math.max(0, trayW - boxW));
+      p.y = clamp(p.y, 0, floor());
+    };
 
-      trayWidth = trayRect.width;
-      trayHeight = trayRect.height;
-      boxWidth = boxRect.width;
-      boxHeight = boxRect.height;
+    const floor = () =>
+      Math.max(0, trayH - boxH - FLOOR_GAP);
 
-      state.x = clamp(
-        state.x,
-        0,
-        Math.max(0, trayWidth - boxWidth)
-      );
-
-      state.y = clamp(
-        state.y,
-        0,
-        Math.max(
-          0,
-          trayHeight -
-            boxHeight -
-            FLOOR_GAP
-        )
-      );
+    const point = (e: PointerEvent): Sample => {
+      const r = tray.getBoundingClientRect();
+      return {
+        x: e.clientX - r.left,
+        y: e.clientY - r.top,
+        time: performance.now(),
+      };
     };
 
     const render = () => {
       box.style.transform =
-        `translate3d(${state.x}px, ${state.y}px, 0) rotate(${state.angle}rad)`;
+        `translate3d(${p.x}px,${p.y}px,0) rotate(${p.angle}rad)`;
     };
 
-    const floorY = () =>
-      Math.max(
-        0,
-        trayHeight -
-          boxHeight -
-          FLOOR_GAP
+    const release = (e: PointerEvent) => {
+      const d = drag.current;
+      if (!d || d.pointerId !== e.pointerId) return;
+
+      const samples = [...d.samples, point(e)];
+      const first = samples[0];
+      const last = samples[samples.length - 1];
+      const dt = Math.max(16, last.time - first.time);
+
+      p.vx = clamp(
+        ((last.x - first.x) / dt) * 1000,
+        -MAX_SPEED, MAX_SPEED
       );
-
-    const pointFromEvent = (
-      event: PointerEvent
-    ): PointerSample => {
-      const rect =
-        tray.getBoundingClientRect();
-
-      return {
-        x:
-          event.clientX -
-          rect.left,
-        y:
-          event.clientY -
-          rect.top,
-        time:
-          performance.now(),
-      };
-    };
-
-    const release = (
-      event: PointerEvent
-    ) => {
-      const drag = dragRef.current;
-
-      if (
-        !drag ||
-        drag.pointerId !==
-          event.pointerId
-      ) {
-        return;
-      }
-
-      const last =
-        pointFromEvent(event);
-
-      const samples = [
-        ...drag.samples,
-        last,
-      ];
-
-      const first =
-        samples[0];
-
-      const dt = Math.max(
-        16,
-        last.time - first.time
+      p.vy = clamp(
+        ((last.y - first.y) / dt) * 1000,
+        -MAX_SPEED, MAX_SPEED
       );
-
-      state.vx = clamp(
-        ((last.x - first.x) /
-          dt) *
-          1000,
-        -MAX_SPEED,
-        MAX_SPEED
+      p.spin = clamp(
+        p.vx * 0.00042,
+        -0.7, 0.7
       );
+      p.sleeping = false;
+      drag.current = null;
+      lastPress.current = null;
 
-      state.vy = clamp(
-        ((last.y - first.y) /
-          dt) *
-          1000,
-        -MAX_SPEED,
-        MAX_SPEED
-      );
-
-      state.spin = clamp(
-        state.vx * 0.00042,
-        -0.7,
-        0.7
-      );
-
-      state.sleeping = false;
-      dragRef.current = null;
-      lastPressRef.current = null;
-
-      try {
-        box.releasePointerCapture(
-          event.pointerId
-        );
-      } catch {
-        // Capture may already be released.
-      }
-
+      try { box.releasePointerCapture(e.pointerId); } catch {}
       box.style.zIndex = "";
       onDraggingChange(false);
     };
 
-    const onDown = (
-      event: PointerEvent
-    ) => {
-      if (event.button !== 0) return;
-
+    const onDown = (e: PointerEvent) => {
+      if (e.button !== 0) return;
       measure();
 
-      const point =
-        pointFromEvent(event);
-
-      const last =
-        lastPressRef.current;
-
-      const doublePress =
+      const q = point(e);
+      const last = lastPress.current;
+      const isDouble =
         !!last &&
-        point.time - last.time <=
-          DOUBLE_PRESS_MS &&
-        Math.hypot(
-          point.x - last.x,
-          point.y - last.y
-        ) <=
-          DOUBLE_PRESS_DISTANCE;
+        q.time - last.time <= DOUBLE_PRESS_MS &&
+        Math.hypot(q.x - last.x, q.y - last.y) <= DOUBLE_PRESS_DISTANCE;
 
-      lastPressRef.current =
-        point;
-
-      if (!doublePress) return;
+      lastPress.current = q;
+      if (!isDouble) return;
 
       const inside =
-        point.x >= state.x &&
-        point.x <=
-          state.x + boxWidth &&
-        point.y >= state.y &&
-        point.y <=
-          state.y + boxHeight;
-
+        q.x >= p.x && q.x <= p.x + boxW &&
+        q.y >= p.y && q.y <= p.y + boxH;
       if (!inside) return;
 
-      event.preventDefault();
-
-      state.vx = 0;
-      state.vy = 0;
-      state.spin = 0;
-      state.sleeping = false;
-
-      dragRef.current = {
-        pointerId:
-          event.pointerId,
-        offsetX:
-          point.x - state.x,
-        offsetY:
-          point.y - state.y,
-        samples: [point],
+      e.preventDefault();
+      p.vx = 0; p.vy = 0; p.spin = 0; p.sleeping = false;
+      drag.current = {
+        pointerId: e.pointerId,
+        offsetX: q.x - p.x,
+        offsetY: q.y - p.y,
+        samples: [q],
       };
 
-      box.setPointerCapture?.(
-        event.pointerId
-      );
-
+      box.setPointerCapture?.(e.pointerId);
       box.style.zIndex = "10";
       onDraggingChange(true);
     };
 
-    const onMove = (
-      event: PointerEvent
-    ) => {
-      const drag = dragRef.current;
+    const onMove = (e: PointerEvent) => {
+      const d = drag.current;
+      if (!d || d.pointerId !== e.pointerId) return;
 
-      if (
-        !drag ||
-        drag.pointerId !==
-          event.pointerId
-      ) {
-        return;
+      const q = point(e);
+      p.x = clamp(q.x - d.offsetX, 0, Math.max(0, trayW - boxW));
+      p.y = clamp(q.y - d.offsetY, 0, floor());
+
+      d.samples.push(q);
+      const cutoff = q.time - 90;
+      while (d.samples.length > 1 && d.samples[0].time < cutoff) {
+        d.samples.shift();
       }
-
-      const point =
-        pointFromEvent(event);
-
-      state.x = clamp(
-        point.x - drag.offsetX,
-        0,
-        Math.max(0, trayWidth - boxWidth)
-      );
-
-      state.y = clamp(
-        point.y - drag.offsetY,
-        0,
-        floorY()
-      );
-
-      drag.samples.push(point);
-
-      const cutoff =
-        point.time - 90;
-
-      while (
-        drag.samples.length > 1 &&
-        drag.samples[0].time < cutoff
-      ) {
-        drag.samples.shift();
-      }
-
       render();
     };
 
-    const onUp = (
-      event: PointerEvent
-    ) => release(event);
+    const resize = new ResizeObserver(() => {
+      measure(); render();
+    });
+    resize.observe(tray);
 
-    const onResize =
-      new ResizeObserver(() => {
-        measure();
-        render();
-      });
-
-    onResize.observe(tray);
-
-    box.addEventListener(
-      "pointerdown",
-      onDown
-    );
-
-    window.addEventListener(
-      "pointermove",
-      onMove,
-      { passive: true }
-    );
-
-    window.addEventListener(
-      "pointerup",
-      onUp
-    );
-
-    window.addEventListener(
-      "pointercancel",
-      onUp
-    );
+    box.addEventListener("pointerdown", onDown);
+    window.addEventListener("pointermove", onMove, { passive: true });
+    window.addEventListener("pointerup", release);
+    window.addEventListener("pointercancel", release);
 
     measure();
-
-    state.x =
-      Math.max(
-        0,
-        (trayWidth - boxWidth) *
-          0.22
-      );
-
-    state.y =
-      Math.max(
-        0,
-        floorY() -
-          42
-      );
-
+    p.x = Math.max(0, (trayW - boxW) * 0.22);
+    p.y = Math.max(0, floor() - 42);
+    p.vx = 0; p.vy = 0; p.angle = 0; p.spin = 0; p.sleeping = true;
     render();
 
-    const tick = (
-      time: number
-    ) => {
-      const dt =
-        Math.min(
-          0.032,
-          Math.max(
-            0,
-            (time - lastFrame) /
-              1000
-          )
-        );
-
+    const tick = (time: number) => {
+      const dt = Math.min(0.032, Math.max(0, (time - lastFrame) / 1000));
       lastFrame = time;
 
-      if (!dragRef.current &&
-          !state.sleeping) {
-        state.vy +=
-          GRAVITY * dt;
+      if (!drag.current && !p.sleeping) {
+        p.vy += GRAVITY * dt;
+        p.vx *= Math.pow(AIR_DRAG, dt * 60);
+        p.x += p.vx * dt;
+        p.y += p.vy * dt;
+        p.angle += p.spin * dt;
 
-        state.vx *= Math.pow(
-          AIR_DRAG,
-          dt * 60
-        );
+        const maxX = Math.max(0, trayW - boxW);
+        const fy = floor();
 
-        state.x +=
-          state.vx * dt;
-
-        state.y +=
-          state.vy * dt;
-
-        state.angle +=
-          state.spin * dt;
-
-        const maxX =
-          Math.max(
-            0,
-            trayWidth - boxWidth
-          );
-
-        const floor =
-          floorY();
-
-        if (state.x < 0) {
-          state.x = 0;
-          state.vx =
-            Math.abs(
-              state.vx
-            ) *
-            WALL_BOUNCE;
-        } else if (
-          state.x > maxX
-        ) {
-          state.x = maxX;
-          state.vx =
-            -Math.abs(
-              state.vx
-            ) *
-            WALL_BOUNCE;
+        if (p.x < 0) {
+          p.x = 0; p.vx = Math.abs(p.vx) * WALL_BOUNCE;
+        } else if (p.x > maxX) {
+          p.x = maxX; p.vx = -Math.abs(p.vx) * WALL_BOUNCE;
         }
 
-        if (state.y >= floor) {
-          state.y = floor;
-
-          if (
-            Math.abs(state.vy) >
-            40
-          ) {
-            state.vy =
-              -Math.abs(
-                state.vy
-              ) *
-              BOUNCE;
-
-            state.vx *=
-              FLOOR_FRICTION;
-
-            state.spin =
-              clamp(
-                state.spin +
-                  state.vx *
-                    0.0002,
-                -0.7,
-                0.7
-              );
+        if (p.y >= fy) {
+          p.y = fy;
+          if (Math.abs(p.vy) > 40) {
+            p.vy = -Math.abs(p.vy) * BOUNCE;
+            p.vx *= FLOOR_FRICTION;
+            p.spin = clamp(p.spin + p.vx * 0.0002, -0.7, 0.7);
           } else {
-            state.vy = 0;
-            state.vx *=
-              0.64;
-            state.spin *=
-              0.5;
+            p.vy = 0; p.vx *= 0.64; p.spin *= 0.5;
           }
         }
 
         if (
-          Math.abs(state.vx) <
-            SLEEP_SPEED &&
-          Math.abs(state.vy) <
-            SLEEP_SPEED &&
-          Math.abs(state.spin) <
-            0.03 &&
-          state.y >=
-            floor - 0.5
+          Math.abs(p.vx) < SLEEP_SPEED &&
+          Math.abs(p.vy) < SLEEP_SPEED &&
+          Math.abs(p.spin) < 0.03 &&
+          p.y >= fy - 0.5
         ) {
-          state.vx = 0;
-          state.vy = 0;
-          state.spin = 0;
-          state.y = floor;
-          state.sleeping = true;
+          p.vx = 0; p.vy = 0; p.spin = 0; p.y = fy; p.sleeping = true;
         }
 
         render();
       }
 
-      raf =
-        requestAnimationFrame(
-          tick
-        );
+      raf = requestAnimationFrame(tick);
     };
 
-    raf =
-      requestAnimationFrame(
-        tick
-      );
+    raf = requestAnimationFrame(tick);
 
     return () => {
-      cancelAnimationFrame(
-        raf
-      );
-
-      onResize.disconnect();
-
-      box.removeEventListener(
-        "pointerdown",
-        onDown
-      );
-
-      window.removeEventListener(
-        "pointermove",
-        onMove
-      );
-
-      window.removeEventListener(
-        "pointerup",
-        onUp
-      );
-
-      window.removeEventListener(
-        "pointercancel",
-        onUp
-      );
-
-      onDraggingChange(false);
+      cancelAnimationFrame(raf);
+      resize.disconnect();
+      box.removeEventListener("pointerdown", onDown);
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", release);
+      window.removeEventListener("pointercancel", release);
+      drag.current = null;
     };
-  }, [
-    boxRef,
-    onDraggingChange,
-    trayRef,
-  ]);
+  }, [boxRef, onDraggingChange, trayRef]);
 }
