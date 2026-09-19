@@ -5,6 +5,7 @@ import {
   useState,
 } from "react";
 
+import styles from "./SkillsSection.module.css";
 import { SKILLS } from "./skills.data";
 import SkillCard from "./SkillCard";
 import { useSkillPhysics } from "./useSkillPhysics";
@@ -24,18 +25,17 @@ export default function SkillPhysicsPlayground() {
     reset,
   } = useSkillPhysics({
     stageRef,
-    skills: SKILLS,
   });
 
   return (
-    <div className="skills-playground-wrap">
-      <div className="skills-playground-toolbar">
+    <div className={styles.playgroundWrap}>
+      <div className={styles.toolbar}>
         <div>
-          <p className="skills-playground-title">
+          <p className={styles.playgroundTitle}>
             Skill tray
           </p>
 
-          <p className="skills-playground-subtitle">
+          <p className={styles.playgroundSubtitle}>
             {hasInteracted
               ? "Make your own stack."
               : "Grab a card and throw it around."}
@@ -44,7 +44,7 @@ export default function SkillPhysicsPlayground() {
 
         <button
           type="button"
-          className="skills-reset"
+          className={styles.reset}
           onClick={() => {
             reset();
             setHasInteracted(false);
@@ -56,7 +56,7 @@ export default function SkillPhysicsPlayground() {
 
       <div
         ref={stageRef}
-        className="skills-playground"
+        className={styles.playground}
         onPointerDown={(event) => {
           const card =
             (
@@ -75,23 +75,27 @@ export default function SkillPhysicsPlayground() {
           setHasInteracted(true);
           handlePointerDown(
             id,
-            event as React.PointerEvent<HTMLButtonElement>
+            event.nativeEvent
           );
         }}
       >
         <div
-          className="skills-playground-grid"
+          className={styles.grid}
           aria-hidden="true"
         />
 
         <div
-          className="skills-playground-glow"
+          className={styles.glow}
           aria-hidden="true"
         />
 
         <div
-          className="skills-playground-hint"
-          data-hidden={hasInteracted}
+          className={styles.hint}
+          data-hidden={
+            hasInteracted
+              ? "true"
+              : "false"
+          }
           aria-hidden="true"
         >
           ↖ grab a skill
@@ -106,16 +110,12 @@ export default function SkillPhysicsPlayground() {
         ))}
 
         <div
-          className="skills-tray-floor"
+          className={styles.trayFloor}
           aria-hidden="true"
         >
-          <span>
-            BUILD YOUR STACK
-          </span>
+          <span>BUILD YOUR STACK</span>
           <span>·</span>
-          <span>
-            KEEP EXPERIMENTING
-          </span>
+          <span>KEEP EXPERIMENTING</span>
         </div>
       </div>
     </div>
