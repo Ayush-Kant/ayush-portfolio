@@ -21,6 +21,31 @@ import {
 
 type InteractionState = "ready" | "dragging";
 
+const INITIAL_STACK_LAYOUT = [
+  { xPercent: 0.055, level: 0 },
+  { xPercent: 0.048, level: 1 },
+  { xPercent: 0.061, level: 2 },
+  { xPercent: 0.052, level: 3 },
+
+  { xPercent: 0.255, level: 0 },
+  { xPercent: 0.247, level: 1 },
+  { xPercent: 0.261, level: 2 },
+  { xPercent: 0.251, level: 3 },
+
+  { xPercent: 0.47, level: 0 },
+  { xPercent: 0.463, level: 1 },
+  { xPercent: 0.478, level: 2 },
+
+  { xPercent: 0.682, level: 0 },
+  { xPercent: 0.674, level: 1 },
+  { xPercent: 0.688, level: 2 },
+  { xPercent: 0.679, level: 3 },
+
+  { xPercent: 0.872, level: 0 },
+  { xPercent: 0.864, level: 1 },
+  { xPercent: 0.879, level: 2 },
+] as const;
+
 export default function SkillPhysicsTray() {
   const trayRef = useRef<HTMLDivElement | null>(null);
 
@@ -75,11 +100,10 @@ export default function SkillPhysicsTray() {
           id: skill.id,
           boxRef: boxRefObjects[skill.id],
           initialXPercent:
-            SKILLS.length === 1
-              ? 0.5
-              : 0.04 +
-                (index / (SKILLS.length - 1)) *
-                  0.92,
+            INITIAL_STACK_LAYOUT[index]?.xPercent ??
+            0.5,
+          initialStackLevel:
+            INITIAL_STACK_LAYOUT[index]?.level ?? 0,
           onStateChange: (
             state: InteractionState
           ) => {
