@@ -601,3 +601,24 @@
     animation: none !important;
   }
 }
+
+
+.skillBox[data-skill="typescript"] {
+  background:
+    linear-gradient(
+      145deg,
+      #4a92e5 0%,
+      #3178c6 58%,
+      #255ca6 100%
+    );
+}
+
+.skillBox[data-skill="typescript"] .jsIcon {
+  color: #fff;
+}
+
+.skillBox[data-skill="typescript"][data-dragging="true"] {
+  box-shadow:
+    0 20px 34px rgba(0, 0, 0, .46),
+    0 0 24px rgba(49, 120, 198, .2);
+}
