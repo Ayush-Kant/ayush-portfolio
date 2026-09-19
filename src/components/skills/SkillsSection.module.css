@@ -116,7 +116,7 @@
 
 .tray {
   position: relative;
-  height: clamp(560px, 66vh, 700px);
+  height: clamp(500px, 58vh, 580px);
   overflow: hidden;
   border: 1px solid rgba(194, 169, 255, .16);
   border-radius: 24px;
@@ -251,7 +251,8 @@
 
 .detailPanel {
   position: relative;
-  min-height: clamp(300px, 44vh, 500px);
+  height: clamp(500px, 58vh, 580px);
+  min-height: 0;
   display: grid;
   align-items: center;
   overflow: hidden;
@@ -494,7 +495,7 @@
 
   .tray {
     height:
-      520px;
+      430px;
     border-radius:
       20px;
   }
@@ -528,7 +529,8 @@
   }
 
   .detailPanel {
-    min-height: 320px;
+    height: 430px;
+    min-height: 0;
     border-radius: 20px;
   }
 
