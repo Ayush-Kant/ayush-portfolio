@@ -12,8 +12,7 @@ import {
 type SkillBoxProps = {
   skill: SkillBoxKind;
   isDragging: boolean;
-  onDoubleClick:
-    MouseEventHandler<HTMLButtonElement>;
+  onDoubleClick: MouseEventHandler<HTMLButtonElement>;
 };
 
 const SkillBox = forwardRef<
@@ -27,32 +26,17 @@ const SkillBox = forwardRef<
   },
   ref
 ) {
-  const skillName =
-    skill === "javascript"
-      ? "JavaScript"
-      : skill === "typescript"
-        ? "TypeScript"
-        : skill === "nodejs"
-          ? "Node.js"
-          : "Express";
-
   return (
     <button
       ref={ref}
       type="button"
       className={styles.skillBox}
       data-skill={skill}
-      data-dragging={
-        isDragging
-          ? "true"
-          : "false"
-      }
+      data-dragging={isDragging ? "true" : "false"}
       onDoubleClick={onDoubleClick}
       aria-label={
-        skillName +
-        " skill box. " +
-        "Press and hold to move it. " +
-        "Double-click to view details."
+        skill.replaceAll("-", " ") +
+        " skill box. Press and hold to move it. Double-click to view details."
       }
     >
       <img
