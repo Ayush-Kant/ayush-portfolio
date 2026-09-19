@@ -30,6 +30,7 @@ type Args = {
     RefObject<HTMLDivElement | null>;
   boxRef:
     RefObject<HTMLButtonElement | null>;
+  initialXPercent: number;
   onStateChange:
     (
       state:
@@ -59,6 +60,7 @@ const clamp = (
 export function useSingleBoxPhysics({
   trayRef,
   boxRef,
+  initialXPercent,
   onStateChange,
 }: Args) {
   const physicsRef =
@@ -420,7 +422,8 @@ export function useSingleBoxPhysics({
       Math.max(
         0,
         (trayWidth -
-          boxWidth) * 0.18
+          boxWidth) *
+          initialXPercent
       );
 
     p.y =
@@ -627,6 +630,7 @@ export function useSingleBoxPhysics({
     };
   }, [
     boxRef,
+    initialXPercent,
     onStateChange,
     trayRef,
   ]);
