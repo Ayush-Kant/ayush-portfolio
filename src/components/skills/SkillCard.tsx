@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
 
+import styles from "./SkillsSection.module.css";
 import type { SkillDefinition } from "./skills.data";
 import TechIcon from "./TechIcon";
 
@@ -26,7 +27,7 @@ export default function SkillCard({
       type="button"
       ref={setRef(skill.id)}
       data-skill-id={skill.id}
-      className="skill-card"
+      className={styles.card}
       style={style}
       aria-label={
         skill.name +
@@ -34,25 +35,25 @@ export default function SkillCard({
         skill.category
       }
     >
-      <span className="skill-card-icon">
+      <span className={styles.cardIcon}>
         <TechIcon
           icon={skill.icon}
           label={skill.name}
         />
       </span>
 
-      <span className="skill-card-content">
-        <span className="skill-card-name">
+      <span className={styles.cardContent}>
+        <span className={styles.cardName}>
           {skill.name}
         </span>
 
-        <span className="skill-card-category">
+        <span className={styles.cardCategory}>
           {skill.category}
         </span>
       </span>
 
       <span
-        className="skill-card-grip"
+        className={styles.cardGrip}
         aria-hidden="true"
       >
         ⋮⋮
