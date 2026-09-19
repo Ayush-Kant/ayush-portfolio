@@ -1,24 +1,18 @@
 import {
   forwardRef,
-  type PointerEventHandler,
 } from "react";
 
 import styles from "./SkillsSection.module.css";
 
 type SkillBoxProps = {
   isDragging: boolean;
-  onPointerDown:
-    PointerEventHandler<HTMLButtonElement>;
 };
 
 const SkillBox = forwardRef<
   HTMLButtonElement,
   SkillBoxProps
 >(function SkillBox(
-  {
-    isDragging,
-    onPointerDown,
-  },
+  { isDragging },
   ref
 ) {
   return (
@@ -30,7 +24,6 @@ const SkillBox = forwardRef<
         isDragging ? "true" : "false"
       }
       aria-label="JavaScript skill box. Double-click and hold to move it."
-      onPointerDown={onPointerDown}
     >
       <span
         className={styles.jsMark}
