@@ -637,19 +637,26 @@
     );
 }
 
-.nodeIcon {
-  position: relative;
-  display: grid;
-  place-items: center;
-  width: 50px;
-  height: 50px;
+.nodeWordmark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font:
+    900 1.45rem / 1
+    Arial,
+    Helvetica,
+    sans-serif;
+  letter-spacing: -.075em;
+  transform: translateY(-1px);
+  text-shadow:
+    0 1px 0 rgba(0, 0, 0, .14);
 }
 
-.nodeIcon svg {
-  width: 48px;
-  height: 48px;
-  display: block;
-  fill: #fff;
+@media (max-width: 560px) {
+  .nodeWordmark {
+    font-size: 1.25rem;
+  }
 }
 
 .skillBox[data-skill="nodejs"][data-dragging="true"] {
