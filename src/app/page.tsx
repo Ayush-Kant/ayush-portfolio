@@ -1,5 +1,6 @@
 import Header from "@/components/header/Header";
 import HeroSection from "@/components/hero/HeroSection";
+import ProjectsSection from "@/components/projects/ProjectsSection";
 import SkillsSection from "@/components/skills/SkillsSection";
 
 export default function Home() {
@@ -9,15 +10,8 @@ export default function Home() {
 
       <main>
         <HeroSection />
-        <SkillsSection />
 
-        <section
-          id="projects"
-          className="placeholder-section"
-          aria-label="Projects"
-        >
-          <p>Projects</p>
-        </section>
+        <ProjectsSection />
 
         <section
           id="work"
@@ -26,6 +20,8 @@ export default function Home() {
         >
           <p>Work</p>
         </section>
+
+        <SkillsSection />
 
         <section
           id="playground"
