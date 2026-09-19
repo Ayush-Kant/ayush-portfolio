@@ -25,7 +25,8 @@ export type SkillPhysicsBodyConfig = {
   boxRef:
     RefObject<HTMLButtonElement | null>;
   initialXPercent: number;
-  initialStackLevel: number;
+  initialYPercent: number;
+  initialAngle: number;
   onStateChange: (
     state:
       | "ready"
@@ -536,28 +537,33 @@ export function useSkillPhysicsWorld({
           return;
         }
 
-        body.x =
+        body.x = clamp(
+          (initialTraySize.width -
+            body.width) *
+            entry.config.initialXPercent,
+          0,
           Math.max(
             0,
-            (initialTraySize.width -
-              body.width) *
-              entry.config
-                .initialXPercent
-          );
+            initialTraySize.width -
+              body.width
+          )
+        );
 
-        body.y =
+        body.y = clamp(
+          (initialTraySize.height -
+            body.height) *
+            entry.config.initialYPercent,
+          0,
           Math.max(
             0,
             initialTraySize.height -
-              body.height -
-              entry.config.initialStackLevel *
-                body.height *
-                0.68
-          );
+              body.height
+          )
+        );
 
         body.vx = 0;
         body.vy = 0;
-        body.angle = 0;
+        body.angle = entry.config.initialAngle;
         body.spin = 0;
         body.sleeping = true;
 
